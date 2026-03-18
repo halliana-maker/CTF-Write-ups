@@ -1,0 +1,1215 @@
+{
+  "challenge_name": "Bad mood",
+  "created_at": "2026-01-11T21:03:16",
+  "workdir": "/home/ctf/Downloads/Bad mood",
+  "version": "5.0 (Enhanced)",
+  "inputs": {
+    "binary_input": "http://ctf-spcs.mf.grsu.by/files/a97fa4df592bc6f4353fb63e0854e416/bad_mood?token=eyJ1c2VyX2lkIjo3NDIyLCJ0ZWFtX2lkIjozODI1LCJmaWxlX2lkIjo0NTV9.aWOfVw.vBY6j9FsKQmST3yPcRh-Z9dD4vQ",
+    "binary_path": "/home/ctf/Downloads/Bad mood/bad_mood",
+    "source_path": "/home/ctf/Downloads/Bad mood/bad_mood",
+    "conn": {
+      "host": "ctf.mf.grsu.by",
+      "port": 9073,
+      "tls": false,
+      "sni": null,
+      "raw": "nc ctf.mf.grsu.by 9073"
+    }
+  },
+  "elf_facts": {
+    "path": "/home/ctf/Downloads/Bad mood/bad_mood",
+    "arch": "amd64",
+    "bits": 64,
+    "endian": "little",
+    "pie": true,
+    "nx": true,
+    "canary": true,
+    "relro": "Full",
+    "static": false,
+    "entry": 4368,
+    "symbols_count": 102,
+    "got_count": 24,
+    "plt_count": 15,
+    "interp": "./ld-linux-x86-64.so.2",
+    "needed": [
+      "libc.so.6"
+    ],
+    "runpath": "$ORIGIN",
+    "rpath": null,
+    "pyelftools": true
+  },
+  "hints": [
+    "Source downloaded: bad_mood",
+    "NX enabled (likely needs ROP/ret2libc).",
+    "PIE enabled (needs leak for code base).",
+    "Heap: use_after_free - Binary uses malloc/free - check for UAF via dynamic analysis",
+    "Format string functions detected: printf, plt.printf, got.printf",
+    "Found 4 one_gadget(s) in libc - check constraints!",
+    "Ghidra pseudo-C embedded in JSON (step ghidra_decompile.stdout).",
+    "Functions without canary: _init, getenv@plt-0x10, getenv@plt, free@plt, puts@plt"
+  ],
+  "errors": [],
+  "vulnerabilities": [
+    {
+      "vuln_type": "dangerous_function_printf",
+      "severity": "medium",
+      "description": "Uses dangerous function: printf",
+      "location": null,
+      "evidence": "Symbol found: printf",
+      "exploitation_notes": [
+        "Potential format string if user input not sanitized"
+      ]
+    },
+    {
+      "vuln_type": "format_string",
+      "severity": "high",
+      "description": "Uses printf - potential format string vulnerability",
+      "location": null,
+      "evidence": "Symbol found: printf",
+      "exploitation_notes": [
+        "If user input goes directly to printf: format string bug",
+        "Can leak stack/memory with %p, %x, %s",
+        "Can write with %n",
+        "Overwrite GOT entries to hijack control flow"
+      ]
+    },
+    {
+      "vuln_type": "format_string",
+      "severity": "high",
+      "description": "Format string vulnerability detected",
+      "location": null,
+      "evidence": "['printf', 'plt.printf', 'got.printf']",
+      "exploitation_notes": [
+        "Leak canary: %p at stack offset N",
+        "Leak PIE base: find code pointer on stack",
+        "Leak libc: find libc pointer (environ, __libc_start_main)",
+        "Use %s to dereference and read memory"
+      ]
+    }
+  ],
+  "exploit_primitives": [],
+  "exploit_chains": [
+    {
+      "chain_id": 0,
+      "name": "No obvious exploitation chain",
+      "steps": [
+        "Manual analysis required"
+      ],
+      "primitives_needed": [],
+      "success_probability": "unknown",
+      "prerequisites": [],
+      "notes": [
+        "Vulnerabilities unclear from static analysis",
+        "Try dynamic analysis with fuzzing"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "name": "acquire_binary",
+      "ok": true,
+      "status": "OK",
+      "note": "selected=bad_mood",
+      "ts": "2026-01-11T21:03:00",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": null
+    },
+    {
+      "name": "source_autofetch",
+      "ok": true,
+      "status": "OK",
+      "note": "downloaded=bad_mood",
+      "ts": "2026-01-11T21:03:02",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": null
+    },
+    {
+      "name": "elf_facts",
+      "ok": true,
+      "status": "OK",
+      "note": "collected via pwntools ELF",
+      "ts": "2026-01-11T21:03:02",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "path": "/home/ctf/Downloads/Bad mood/bad_mood",
+        "arch": "amd64",
+        "bits": 64,
+        "endian": "little",
+        "pie": true,
+        "nx": true,
+        "canary": true,
+        "relro": "Full",
+        "static": false,
+        "entry": 4368,
+        "symbols_count": 102,
+        "got_count": 24,
+        "plt_count": 15,
+        "interp": "./ld-linux-x86-64.so.2",
+        "needed": [
+          "libc.so.6"
+        ],
+        "runpath": "$ORIGIN",
+        "rpath": null,
+        "pyelftools": true
+      }
+    },
+    {
+      "name": "probe_banner",
+      "ok": true,
+      "status": "OK",
+      "note": "banner collected",
+      "ts": "2026-01-11T21:03:03",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": "\n--- ÐÐ°ÑÐ¸Ð»Ð¸Ð¹ Ð¸ Ð·Ð°Ð¼ÐµÑÐºÐ¸ ---\n1. Alloc\n2. Free\n3. Edit\n4. Read\n5. Check admin\n> ",
+      "stderr": "hex=0a2d2d2d20d092d0b0d181d0b8d0bbd0b8d0b920d0b820d0b7d0b0d0bcd0b5d182d0bad0b8202d2d2d0a312e20416c6c6f630a322e20467265650a332e20456469740a342e20526561640a352e20436865636b2061646d696e0a3e20",
+      "truncated": null,
+      "data": null
+    },
+    {
+      "name": "probe_newline",
+      "ok": true,
+      "status": "OK",
+      "note": "probe collected",
+      "ts": "2026-01-11T21:03:04",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": "\n--- ÐÐ°ÑÐ¸Ð»Ð¸Ð¹ Ð¸ Ð·Ð°Ð¼ÐµÑÐºÐ¸ ---\n1. Alloc\n2. Free\n3. Edit\n4. Read\n5. Check admin\n> ",
+      "stderr": "hex=0a2d2d2d20d092d0b0d181d0b8d0bbd0b8d0b920d0b820d0b7d0b0d0bcd0b5d182d0bad0b8202d2d2d0a312e20416c6c6f630a322e20467265650a332e20456469740a342e20526561640a352e20436865636b2061646d696e0a3e20",
+      "truncated": null,
+      "data": null
+    },
+    {
+      "name": "probe_fmt",
+      "ok": true,
+      "status": "OK",
+      "note": "probe collected",
+      "ts": "2026-01-11T21:03:06",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": "\n--- ÐÐ°ÑÐ¸Ð»Ð¸Ð¹ Ð¸ Ð·Ð°Ð¼ÐµÑÐºÐ¸ ---\n1. Alloc\n2. Free\n3. Edit\n4. Read\n5. Check admin\n> ",
+      "stderr": "hex=0a2d2d2d20d092d0b0d181d0b8d0bbd0b8d0b920d0b820d0b7d0b0d0bcd0b5d182d0bad0b8202d2d2d0a312e20416c6c6f630a322e20467265650a332e20456469740a342e20526561640a352e20436865636b2061646d696e0a3e20",
+      "truncated": null,
+      "data": null
+    },
+    {
+      "name": "probe_A200",
+      "ok": true,
+      "status": "OK",
+      "note": "probe collected",
+      "ts": "2026-01-11T21:03:07",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": "\n--- ÐÐ°ÑÐ¸Ð»Ð¸Ð¹ Ð¸ Ð·Ð°Ð¼ÐµÑÐºÐ¸ ---\n1. Alloc\n2. Free\n3. Edit\n4. Read\n5. Check admin\n> ",
+      "stderr": "hex=0a2d2d2d20d092d0b0d181d0b8d0bbd0b8d0b920d0b820d0b7d0b0d0bcd0b5d182d0bad0b8202d2d2d0a312e20416c6c6f630a322e20467265650a332e20456469740a342e20526561640a352e20436865636b2061646d696e0a3e20",
+      "truncated": null,
+      "data": null
+    },
+    {
+      "name": "checksec",
+      "ok": true,
+      "status": "OK",
+      "note": "ok",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": [
+        "checksec",
+        "--file",
+        "/home/ctf/Downloads/Bad mood/bad_mood"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "duration_sec": 0.117,
+      "stdout": "",
+      "stderr": "[*] '/home/ctf/Downloads/Bad mood/bad_mood'\n    Arch:       amd64-64-little\n    RELRO:      Full RELRO\n    Stack:      Canary found\n    NX:         NX enabled\n    PIE:        PIE enabled\n    RUNPATH:    b'$ORIGIN'\n    Stripped:   No\n",
+      "truncated": false,
+      "data": null
+    },
+    {
+      "name": "seccomp_dump",
+      "ok": true,
+      "status": "OK",
+      "note": "ok",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": [
+        "seccomp-tools",
+        "dump",
+        "/home/ctf/Downloads/Bad mood/bad_mood"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "duration_sec": 0.157,
+      "stdout": "",
+      "stderr": "/bin/sh: 1: /home/ctf/Downloads/Bad: not found\n",
+      "truncated": false,
+      "data": null
+    },
+    {
+      "name": "readelf_dynsym",
+      "ok": true,
+      "status": "OK",
+      "note": "ok",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": [
+        "readelf",
+        "-Ws",
+        "/home/ctf/Downloads/Bad mood/bad_mood"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "duration_sec": 0.004,
+      "stdout": "\nSymbol table '.dynsym' contains 22 entries:\n   Num:    Value          Size Type    Bind   Vis      Ndx Name\n     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND \n     1: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND getenv@GLIBC_2.2.5 (2)\n     2: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND free@GLIBC_2.2.5 (2)\n     3: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND __libc_start_main@GLIBC_2.34 (3)\n     4: 0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterTMCloneTable\n     5: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND puts@GLIBC_2.2.5 (2)\n     6: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND write@GLIBC_2.2.5 (2)\n     7: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND strlen@GLIBC_2.2.5 (2)\n     8: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND __stack_chk_fail@GLIBC_2.4 (4)\n     9: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND printf@GLIBC_2.2.5 (2)\n    10: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND read@GLIBC_2.2.5 (2)\n    11: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND getchar@GLIBC_2.2.5 (2)\n    12: 0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__\n    13: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND malloc@GLIBC_2.2.5 (2)\n    14: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND setvbuf@GLIBC_2.2.5 (2)\n    15: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND __isoc99_scanf@GLIBC_2.7 (5)\n    16: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND exit@GLIBC_2.2.5 (2)\n    17: 0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMCloneTable\n    18: 0000000000004040     8 OBJECT  GLOBAL DEFAULT   25 stdout@GLIBC_2.2.5 (2)\n    19: 0000000000000000     0 FUNC    WEAK   DEFAULT  UND __cxa_finalize@GLIBC_2.2.5 (2)\n    20: 0000000000004050     8 OBJECT  GLOBAL DEFAULT   25 stdin@GLIBC_2.2.5 (2)\n    21: 0000000000004060     8 OBJECT  GLOBAL DEFAULT   25 stderr@GLIBC_2.2.5 (2)\n\nSymbol table '.symtab' contains 63 entries:\n   Num:    Value          Size Type    Bind   Vis      Ndx Name\n     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND \n     1: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS Scrt1.o\n     2: 00000000000022f4    32 OBJECT  LOCAL  DEFAULT   19 __abi_tag\n     3: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c\n     4: 0000000000001140     0 FUNC    LOCAL  DEFAULT   14 deregister_tm_clones\n     5: 0000000000001170     0 FUNC    LOCAL  DEFAULT   14 register_tm_clones\n     6: 00000000000011b0     0 FUNC    LOCAL  DEFAULT   14 __do_global_dtors_aux\n     7: 0000000000004068     1 OBJECT  LOCAL  DEFAULT   25 completed.0\n     8: 0000000000003d50     0 OBJECT  LOCAL  DEFAULT   21 __do_global_dtors_aux_fini_array_entry\n     9: 00000000000011f0     0 FUNC    LOCAL  DEFAULT   14 frame_dummy\n    10: 0000000000003d48     0 OBJECT  LOCAL  DEFAULT   20 __frame_dummy_init_array_entry\n    11: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS bad_mood.c\n    12: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c\n    13: 00000000000022f0     0 OBJECT  LOCAL  DEFAULT   18 __FRAME_END__\n    14: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS \n    15: 0000000000003d58     0 OBJECT  LOCAL  DEFAULT   22 _DYNAMIC\n    16: 00000000000020d4     0 NOTYPE  LOCAL  DEFAULT   17 __GNU_EH_FRAME_HDR\n    17: 0000000000003f58     0 OBJECT  LOCAL  DEFAULT   23 _GLOBAL_OFFSET_TABLE_\n    18: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND getenv@GLIBC_2.2.5\n    19: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND free@GLIBC_2.2.5\n    20: 0000000000004080    64 OBJECT  GLOBAL DEFAULT   25 notes\n    21: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND __libc_start_main@GLIBC_2.34\n    22: 0000000000001610   172 FUNC    GLOBAL DEFAULT   14 read_note\n    23: 0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterTMCloneTable\n    24: 0000000000004040     8 OBJECT  GLOBAL DEFAULT   25 stdout@GLIBC_2.2.5\n    25: 0000000000004000     0 NOTYPE  WEAK   DEFAULT   24 data_start\n    26: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND puts@GLIBC_2.2.5\n    27: 0000000000004050     8 OBJECT  GLOBAL DEFAULT   25 stdin@GLIBC_2.2.5\n    28: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND write@GLIBC_2.2.5\n    29: 00000000000016bc   148 FUNC    GLOBAL DEFAULT   14 check_admin\n    30: 0000000000004028     0 NOTYPE  GLOBAL DEFAULT   24 _edata\n    31: 000000000000131b   156 FUNC    GLOBAL DEFAULT   14 menu\n    32: 000000000000186c     0 FUNC    GLOBAL HIDDEN    15 _fini\n    33: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND strlen@GLIBC_2.2.5\n    34: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND __stack_chk_fail@GLIBC_2.4\n    35: 0000000000001281   154 FUNC    GLOBAL DEFAULT   14 hash\n    36: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND printf@GLIBC_2.2.5\n    37: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND read@GLIBC_2.2.5\n    38: 000000000000155a   182 FUNC    GLOBAL DEFAULT   14 edit_note\n    39: 0000000000004010    16 OBJECT  GLOBAL DEFAULT   24 admin_key\n    40: 0000000000004000     0 NOTYPE  GLOBAL DEFAULT   24 __data_start\n    41: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND getchar@GLIBC_2.2.5\n    42: 0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__\n    43: 0000000000004008     0 OBJECT  GLOBAL HIDDEN    24 __dso_handle\n    44: 0000000000002000     4 OBJECT  GLOBAL DEFAULT   16 _IO_stdin_used\n    45: 00000000000011f9   136 FUNC    GLOBAL DEFAULT   14 init\n    46: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND malloc@GLIBC_2.2.5\n    47: 00000000000040c8     0 NOTYPE  GLOBAL DEFAULT   25 _end\n    48: 0000000000001110    34 FUNC    GLOBAL DEFAULT   14 _start\n    49: 00000000000040c0     8 OBJECT  GLOBAL DEFAULT   25 admin_hash\n    50: 0000000000004040     0 NOTYPE  GLOBAL DEFAULT   25 __bss_start\n    51: 0000000000001750   282 FUNC    GLOBAL DEFAULT   14 main\n    52: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND setvbuf@GLIBC_2.2.5\n    53: 00000000000014c7   147 FUNC    GLOBAL DEFAULT   14 free_note\n    54: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND __isoc99_scanf@GLIBC_2.7\n    55: 0000000000000000     0 FUNC    GLOBAL DEFAULT  UND exit@GLIBC_2.2.5\n    56: 0000000000004028     0 OBJECT  GLOBAL HIDDEN    24 __TMC_END__\n    57: 0000000000000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMCloneTable\n    58: 00000000000013b7   272 FUNC    GLOBAL DEFAULT   14 alloc_note\n    59: 0000000000000000     0 FUNC    WEAK   DEFAULT  UND __cxa_finalize@GLIBC_2.2.5\n    60: 0000000000001000     0 FUNC    GLOBAL HIDDEN    11 _init\n    61: 0000000000004020     8 OBJECT  GLOBAL DEFAULT   24 DEFAULT_TAG\n    62: 0000000000004060     8 OBJECT  GLOBAL DEFAULT   25 stderr@GLIBC_2.2.5\n",
+      "stderr": "",
+      "truncated": false,
+      "data": null
+    },
+    {
+      "name": "strings",
+      "ok": true,
+      "status": "OK",
+      "note": "ok",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": [
+        "strings",
+        "-a",
+        "-n",
+        "5",
+        "/home/ctf/Downloads/Bad mood/bad_mood"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "duration_sec": 0.004,
+      "stdout": "./ld-linux-x86-64.so.2\nsetvbuf\nstdin\n__stack_chk_fail\nstrlen\ngetchar\nstdout\nmalloc\n__libc_start_main\nstderr\n__cxa_finalize\ngetenv\nprintf\n__isoc99_scanf\nwrite\nlibc.so.6\nGLIBC_2.7\nGLIBC_2.4\nGLIBC_2.34\nGLIBC_2.2.5\n$ORIGIN\n_ITM_deregisterTMCloneTable\n__gmon_start__\n_ITM_registerTMCloneTable\nVASILIY_H\n_SECRET\n1. Alloc\n2. Free\n3. Edit\n4. Read\n5. Check admin\nIndex: \nData: \nFLAG_VAL\nCTF{pie_is_not_a_lie}\nVasily doesn't trust you.\n;*3$\"\nGCC: (Debian 14.3.0-5) 14.3.0\nScrt1.o\n__abi_tag\ncrtstuff.c\nderegister_tm_clones\n__do_global_dtors_aux\ncompleted.0\n__do_global_dtors_aux_fini_array_entry\nframe_dummy\n__frame_dummy_init_array_entry\nbad_mood.c\n__FRAME_END__\n_DYNAMIC\n__GNU_EH_FRAME_HDR\n_GLOBAL_OFFSET_TABLE_\ngetenv@GLIBC_2.2.5\nfree@GLIBC_2.2.5\nnotes\n__libc_start_main@GLIBC_2.34\nread_note\n_ITM_deregisterTMCloneTable\nstdout@GLIBC_2.2.5\nputs@GLIBC_2.2.5\nstdin@GLIBC_2.2.5\nwrite@GLIBC_2.2.5\ncheck_admin\n_edata\n_fini\nstrlen@GLIBC_2.2.5\n__stack_chk_fail@GLIBC_2.4\nprintf@GLIBC_2.2.5\nread@GLIBC_2.2.5\nedit_note\nadmin_key\n__data_start\ngetchar@GLIBC_2.2.5\n__gmon_start__\n__dso_handle\n_IO_stdin_used\nmalloc@GLIBC_2.2.5\nadmin_hash\n__bss_start\nsetvbuf@GLIBC_2.2.5\nfree_note\n__isoc99_scanf@GLIBC_2.7\nexit@GLIBC_2.2.5\n__TMC_END__\n_ITM_registerTMCloneTable\nalloc_note\n__cxa_finalize@GLIBC_2.2.5\n_init\nDEFAULT_TAG\nstderr@GLIBC_2.2.5\n.symtab\n.strtab\n.shstrtab\n.note.gnu.property\n.note.gnu.build-id\n.interp\n.gnu.hash\n.dynsym\n.dynstr\n.gnu.version\n.gnu.version_r\n.rela.dyn\n.rela.plt\n.init\n.plt.got\n.text\n.fini\n.rodata\n.eh_frame_hdr\n.eh_frame\n.note.ABI-tag\n.init_array\n.fini_array\n.dynamic\n.data\n.comment\n",
+      "stderr": "",
+      "truncated": false,
+      "data": null
+    },
+    {
+      "name": "objdump",
+      "ok": true,
+      "status": "OK",
+      "note": "ok",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": [
+        "objdump",
+        "-d",
+        "-M",
+        "intel",
+        "/home/ctf/Downloads/Bad mood/bad_mood"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "duration_sec": 0.007,
+      "stdout": "\n/home/ctf/Downloads/Bad mood/bad_mood:     file format elf64-x86-64\n\n\nDisassembly of section .init:\n\n0000000000001000 <_init>:\n    1000:\t48 83 ec 08          \tsub    rsp,0x8\n    1004:\t48 8b 05 dd 2f 00 00 \tmov    rax,QWORD PTR [rip+0x2fdd]        # 3fe8 <__gmon_start__@Base>\n    100b:\t48 85 c0             \ttest   rax,rax\n    100e:\t74 02                \tje     1012 <_init+0x12>\n    1010:\tff d0                \tcall   rax\n    1012:\t48 83 c4 08          \tadd    rsp,0x8\n    1016:\tc3                   \tret\n\nDisassembly of section .plt:\n\n0000000000001020 <getenv@plt-0x10>:\n    1020:\tff 35 3a 2f 00 00    \tpush   QWORD PTR [rip+0x2f3a]        # 3f60 <_GLOBAL_OFFSET_TABLE_+0x8>\n    1026:\tff 25 3c 2f 00 00    \tjmp    QWORD PTR [rip+0x2f3c]        # 3f68 <_GLOBAL_OFFSET_TABLE_+0x10>\n    102c:\t0f 1f 40 00          \tnop    DWORD PTR [rax+0x0]\n\n0000000000001030 <getenv@plt>:\n    1030:\tff 25 3a 2f 00 00    \tjmp    QWORD PTR [rip+0x2f3a]        # 3f70 <getenv@GLIBC_2.2.5>\n    1036:\t68 00 00 00 00       \tpush   0x0\n    103b:\te9 e0 ff ff ff       \tjmp    1020 <_init+0x20>\n\n0000000000001040 <free@plt>:\n    1040:\tff 25 32 2f 00 00    \tjmp    QWORD PTR [rip+0x2f32]        # 3f78 <free@GLIBC_2.2.5>\n    1046:\t68 01 00 00 00       \tpush   0x1\n    104b:\te9 d0 ff ff ff       \tjmp    1020 <_init+0x20>\n\n0000000000001050 <puts@plt>:\n    1050:\tff 25 2a 2f 00 00    \tjmp    QWORD PTR [rip+0x2f2a]        # 3f80 <puts@GLIBC_2.2.5>\n    1056:\t68 02 00 00 00       \tpush   0x2\n    105b:\te9 c0 ff ff ff       \tjmp    1020 <_init+0x20>\n\n0000000000001060 <write@plt>:\n    1060:\tff 25 22 2f 00 00    \tjmp    QWORD PTR [rip+0x2f22]        # 3f88 <write@GLIBC_2.2.5>\n    1066:\t68 03 00 00 00       \tpush   0x3\n    106b:\te9 b0 ff ff ff       \tjmp    1020 <_init+0x20>\n\n0000000000001070 <strlen@plt>:\n    1070:\tff 25 1a 2f 00 00    \tjmp    QWORD PTR [rip+0x2f1a]        # 3f90 <strlen@GLIBC_2.2.5>\n    1076:\t68 04 00 00 00       \tpush   0x4\n    107b:\te9 a0 ff ff ff       \tjmp    1020 <_init+0x20>\n\n0000000000001080 <__stack_chk_fail@plt>:\n    1080:\tff 25 12 2f 00 00    \tjmp    QWORD PTR [rip+0x2f12]        # 3f98 <__stack_chk_fail@GLIBC_2.4>\n    1086:\t68 05 00 00 00       \tpush   0x5\n    108b:\te9 90 ff ff ff       \tjmp    1020 <_init+0x20>\n\n0000000000001090 <printf@plt>:\n    1090:\tff 25 0a 2f 00 00    \tjmp    QWORD PTR [rip+0x2f0a]        # 3fa0 <printf@GLIBC_2.2.5>\n    1096:\t68 06 00 00 00       \tpush   0x6\n    109b:\te9 80 ff ff ff       \tjmp    1020 <_init+0x20>\n\n00000000000010a0 <read@plt>:\n    10a0:\tff 25 02 2f 00 00    \tjmp    QWORD PTR [rip+0x2f02]        # 3fa8 <read@GLIBC_2.2.5>\n    10a6:\t68 07 00 00 00       \tpush   0x7\n    10ab:\te9 70 ff ff ff       \tjmp    1020 <_init+0x20>\n\n00000000000010b0 <getchar@plt>:\n    10b0:\tff 25 fa 2e 00 00    \tjmp    QWORD PTR [rip+0x2efa]        # 3fb0 <getchar@GLIBC_2.2.5>\n    10b6:\t68 08 00 00 00       \tpush   0x8\n    10bb:\te9 60 ff ff ff       \tjmp    1020 <_init+0x20>\n\n00000000000010c0 <malloc@plt>:\n    10c0:\tff 25 f2 2e 00 00    \tjmp    QWORD PTR [rip+0x2ef2]        # 3fb8 <malloc@GLIBC_2.2.5>\n    10c6:\t68 09 00 00 00       \tpush   0x9\n    10cb:\te9 50 ff ff ff       \tjmp    1020 <_init+0x20>\n\n00000000000010d0 <setvbuf@plt>:\n    10d0:\tff 25 ea 2e 00 00    \tjmp    QWORD PTR [rip+0x2eea]        # 3fc0 <setvbuf@GLIBC_2.2.5>\n    10d6:\t68 0a 00 00 00       \tpush   0xa\n    10db:\te9 40 ff ff ff       \tjmp    1020 <_init+0x20>\n\n00000000000010e0 <__isoc99_scanf@plt>:\n    10e0:\tff 25 e2 2e 00 00    \tjmp    QWORD PTR [rip+0x2ee2]        # 3fc8 <__isoc99_scanf@GLIBC_2.7>\n    10e6:\t68 0b 00 00 00       \tpush   0xb\n    10eb:\te9 30 ff ff ff       \tjmp    1020 <_init+0x20>\n\n00000000000010f0 <exit@plt>:\n    10f0:\tff 25 da 2e 00 00    \tjmp    QWORD PTR [rip+0x2eda]        # 3fd0 <exit@GLIBC_2.2.5>\n    10f6:\t68 0c 00 00 00       \tpush   0xc\n    10fb:\te9 20 ff ff ff       \tjmp    1020 <_init+0x20>\n\nDisassembly of section .plt.got:\n\n0000000000001100 <__cxa_finalize@plt>:\n    1100:\tff 25 f2 2e 00 00    \tjmp    QWORD PTR [rip+0x2ef2]        # 3ff8 <__cxa_finalize@GLIBC_2.2.5>\n    1106:\t66 90                \txchg   ax,ax\n\nDisassembly of section .text:\n\n0000000000001110 <_start>:\n    1110:\t31 ed                \txor    ebp,ebp\n    1112:\t49 89 d1             \tmov    r9,rdx\n    1115:\t5e                   \tpop    rsi\n    1116:\t48 89 e2             \tmov    rdx,rsp\n    1119:\t48 83 e4 f0          \tand    rsp,0xfffffffffffffff0\n    111d:\t50                   \tpush   rax\n    111e:\t54                   \tpush   rsp\n    111f:\t45 31 c0             \txor    r8d,r8d\n    1122:\t31 c9                \txor    ecx,ecx\n    1124:\t48 8d 3d 25 06 00 00 \tlea    rdi,[rip+0x625]        # 1750 <main>\n    112b:\tff 15 a7 2e 00 00    \tcall   QWORD PTR [rip+0x2ea7]        # 3fd8 <__libc_start_main@GLIBC_2.34>\n    1131:\tf4                   \thlt\n    1132:\t66 2e 0f 1f 84 00 00 \tcs nop WORD PTR [rax+rax*1+0x0]\n    1139:\t00 00 00 \n    113c:\t0f 1f 40 00          \tnop    DWORD PTR [rax+0x0]\n\n0000000000001140 <deregister_tm_clones>:\n    1140:\t48 8d 3d e1 2e 00 00 \tlea    rdi,[rip+0x2ee1]        # 4028 <__TMC_END__>\n    1147:\t48 8d 05 da 2e 00 00 \tlea    rax,[rip+0x2eda]        # 4028 <__TMC_END__>\n    114e:\t48 39 f8             \tcmp    rax,rdi\n    1151:\t74 15                \tje     1168 <deregister_tm_clones+0x28>\n    1153:\t48 8b 05 86 2e 00 00 \tmov    rax,QWORD PTR [rip+0x2e86]        # 3fe0 <_ITM_deregisterTMCloneTable@Base>\n    115a:\t48 85 c0             \ttest   rax,rax\n    115d:\t74 09                \tje     1168 <deregister_tm_clones+0x28>\n    115f:\tff e0                \tjmp    rax\n    1161:\t0f 1f 80 00 00 00 00 \tnop    DWORD PTR [rax+0x0]\n    1168:\tc3                   \tret\n    1169:\t0f 1f 80 00 00 00 00 \tnop    DWORD PTR [rax+0x0]\n\n0000000000001170 <register_tm_clones>:\n    1170:\t48 8d 3d b1 2e 00 00 \tlea    rdi,[rip+0x2eb1]        # 4028 <__TMC_END__>\n    1177:\t48 8d 35 aa 2e 00 00 \tlea    rsi,[rip+0x2eaa]        # 4028 <__TMC_END__>\n    117e:\t48 29 fe             \tsub    rsi,rdi\n    1181:\t48 89 f0             \tmov    rax,rsi\n    1184:\t48 c1 ee 3f          \tshr    rsi,0x3f\n    1188:\t48 c1 f8 03          \tsar    rax,0x3\n    118c:\t48 01 c6             \tadd    rsi,rax\n    118f:\t48 d1 fe             \tsar    rsi,1\n    1192:\t74 14                \tje     11a8 <register_tm_clones+0x38>\n    1194:\t48 8b 05 55 2e 00 00 \tmov    rax,QWORD PTR [rip+0x2e55]        # 3ff0 <_ITM_registerTMCloneTable@Base>\n    119b:\t48 85 c0             \ttest   rax,rax\n    119e:\t74 08                \tje     11a8 <register_tm_clones+0x38>\n    11a0:\tff e0                \tjmp    rax\n    11a2:\t66 0f 1f 44 00 00    \tnop    WORD PTR [rax+rax*1+0x0]\n    11a8:\tc3                   \tret\n    11a9:\t0f 1f 80 00 00 00 00 \tnop    DWORD PTR [rax+0x0]\n\n00000000000011b0 <__do_global_dtors_aux>:\n    11b0:\tf3 0f 1e fa          \tendbr64\n    11b4:\t80 3d ad 2e 00 00 00 \tcmp    BYTE PTR [rip+0x2ead],0x0        # 4068 <completed.0>\n    11bb:\t75 2b                \tjne    11e8 <__do_global_dtors_aux+0x38>\n    11bd:\t55                   \tpush   rbp\n    11be:\t48 83 3d 32 2e 00 00 \tcmp    QWORD PTR [rip+0x2e32],0x0        # 3ff8 <__cxa_finalize@GLIBC_2.2.5>\n    11c5:\t00 \n    11c6:\t48 89 e5             \tmov    rbp,rsp\n    11c9:\t74 0c                \tje     11d7 <__do_global_dtors_aux+0x27>\n    11cb:\t48 8b 3d 36 2e 00 00 \tmov    rdi,QWORD PTR [rip+0x2e36]        # 4008 <__dso_handle>\n    11d2:\te8 29 ff ff ff       \tcall   1100 <__cxa_finalize@plt>\n    11d7:\te8 64 ff ff ff       \tcall   1140 <deregister_tm_clones>\n    11dc:\tc6 05 85 2e 00 00 01 \tmov    BYTE PTR [rip+0x2e85],0x1        # 4068 <completed.0>\n    11e3:\t5d                   \tpop    rbp\n    11e4:\tc3                   \tret\n    11e5:\t0f 1f 00             \tnop    DWORD PTR [rax]\n    11e8:\tc3                   \tret\n    11e9:\t0f 1f 80 00 00 00 00 \tnop    DWORD PTR [rax+0x0]\n\n00000000000011f0 <frame_dummy>:\n    11f0:\tf3 0f 1e fa          \tendbr64\n    11f4:\te9 77 ff ff ff       \tjmp    1170 <register_tm_clones>\n\n00000000000011f9 <init>:\n    11f9:\t55                   \tpush   rbp\n    11fa:\t48 89 e5             \tmov    rbp,rsp\n    11fd:\t48 83 ec 10          \tsub    rsp,0x10\n    1201:\t64 48 8b 04 25 28 00 \tmov    rax,QWORD PTR fs:0x28\n    1208:\t00 00 \n    120a:\t48 89 45 f8          \tmov    QWORD PTR [rbp-0x8],rax\n    120e:\t31 c0                \txor    eax,eax\n    1210:\t48 8b 05 39 2e 00 00 \tmov    rax,QWORD PTR [rip+0x2e39]        # 4050 <stdin@GLIBC_2.2.5>\n    1217:\tb9 00 00 00 00       \tmov    ecx,0x0\n    121c:\tba 02 00 00 00       \tmov    edx,0x2\n    1221:\tbe 00 00 00 00       \tmov    esi,0x0\n    1226:\t48 89 c7             \tmov    rdi,rax\n    1229:\te8 a2 fe ff ff       \tcall   10d0 <setvbuf@plt>\n    122e:\t48 8b 05 0b 2e 00 00 \tmov    rax,QWORD PTR [rip+0x2e0b]        # 4040 <stdout@GLIBC_2.2.5>\n    1235:\tb9 00 00 00 00       \tmov    ecx,0x0\n    123a:\tba 02 00 00 00       \tmov    edx,0x2\n    123f:\tbe 00 00 00 00       \tmov    esi,0x0\n    1244:\t48 89 c7             \tmov    rdi,rax\n    1247:\te8 84 fe ff ff       \tcall   10d0 <setvbuf@plt>\n    124c:\t48 8b 05 0d 2e 00 00 \tmov    rax,QWORD PTR [rip+0x2e0d]        # 4060 <stderr@GLIBC_2.2.5>\n    1253:\tb9 00 00 00 00       \tmov    ecx,0x0\n    1258:\tba 02 00 00 00       \tmov    edx,0x2\n    125d:\tbe 00 00 00 00       \tmov    esi,0x0\n    1262:\t48 89 c7             \tmov    rdi,rax\n    1265:\te8 66 fe ff ff       \tcall   10d0 <setvbuf@plt>\n    126a:\t90                   \tnop\n    126b:\t48 8b 45 f8          \tmov    rax,QWORD PTR [rbp-0x8]\n    126f:\t64 48 2b 04 25 28 00 \tsub    rax,QWORD PTR fs:0x28\n    1276:\t00 00 \n    1278:\t74 05                \tje     127f <init+0x86>\n    127a:\te8 01 fe ff ff       \tcall   1080 <__stack_chk_fail@plt>\n    127f:\tc9                   \tleave\n    1280:\tc3                   \tret\n\n0000000000001281 <hash>:\n    1281:\t55                   \tpush   rbp\n    1282:\t48 89 e5             \tmov    rbp,rsp\n    1285:\t53                   \tpush   rbx\n    1286:\t48 83 ec 38          \tsub    rsp,0x38\n    128a:\t48 89 7d c8          \tmov    QWORD PTR [rbp-0x38],rdi\n    128e:\t64 48 8b 04 25 28 00 \tmov    rax,QWORD PTR fs:0x28\n    1295:\t00 00 \n    1297:\t48 89 45 e8          \tmov    QWORD PTR [rbp-0x18],rax\n    129b:\t31 c0                \txor    eax,eax\n    129d:\t48 b8 25 23 22 84 e4 \tmovabs rax,0xcbf29ce484222325\n    12a4:\t9c f2 cb \n    12a7:\t48 89 45 e0          \tmov    QWORD PTR [rbp-0x20],rax\n    12ab:\tc7 45 dc 00 00 00 00 \tmov    DWORD PTR [rbp-0x24],0x0\n    12b2:\teb 32                \tjmp    12e6 <hash+0x65>\n    12b4:\t8b 45 dc             \tmov    eax,DWORD PTR [rbp-0x24]\n    12b7:\t48 63 d0             \tmovsxd rdx,eax\n    12ba:\t48 8b 45 c8          \tmov    rax,QWORD PTR [rbp-0x38]\n    12be:\t48 01 d0             \tadd    rax,rdx\n    12c1:\t0f b6 00             \tmovzx  eax,BYTE PTR [rax]\n    12c4:\t48 0f be c0          \tmovsx  rax,al\n    12c8:\t48 31 45 e0          \txor    QWORD PTR [rbp-0x20],rax\n    12cc:\t48 8b 45 e0          \tmov    rax,QWORD PTR [rbp-0x20]\n    12d0:\t48 ba b3 01 00 00 00 \tmovabs rdx,0x100000001b3\n    12d7:\t01 00 00 \n    12da:\t48 0f af c2          \timul   rax,rdx\n    12de:\t48 89 45 e0          \tmov    QWORD PTR [rbp-0x20],rax\n    12e2:\t83 45 dc 01          \tadd    DWORD PTR [rbp-0x24],0x1\n    12e6:\t8b 45 dc             \tmov    eax,DWORD PTR [rbp-0x24]\n    12e9:\t48 63 d8             \tmovsxd rbx,eax\n    12ec:\t48 8b 45 c8          \tmov    rax,QWORD PTR [rbp-0x38]\n    12f0:\t48 89 c7             \tmov    rdi,rax\n    12f3:\te8 78 fd ff ff       \tcall   1070 <strlen@plt>\n    12f8:\t48 39 c3             \tcmp    rbx,rax\n    12fb:\t72 b7                \tjb     12b4 <hash+0x33>\n    12fd:\t48 8b 45 e0          \tmov    rax,QWORD PTR [rbp-0x20]\n    1301:\t48 8b 55 e8          \tmov    rdx,QWORD PTR [rbp-0x18]\n    1305:\t64 48 2b 14 25 28 00 \tsub    rdx,QWORD PTR fs:0x28\n    130c:\t00 00 \n    130e:\t74 05                \tje     1315 <hash+0x94>\n    1310:\te8 6b fd ff ff       \tcall   1080 <__stack_chk_fail@plt>\n    1315:\t48 8b 5d f8          \tmov    rbx,QWORD PTR [rbp-0x8]\n    1319:\tc9                   \tleave\n    131a:\tc3                   \tret\n\n000000000000131b <menu>:\n    131b:\t55                   \tpush   rbp\n    131c:\t48 89 e5             \tmov    rbp,rsp\n    131f:\t48 83 ec 10          \tsub    rsp,0x10\n    1323:\t64 48 8b 04 25 28 00 \tmov    rax,QWORD PTR fs:0x28\n    132a:\t00 00 \n    132c:\t48 89 45 f8          \tmov    QWORD PTR [rbp-0x8],rax\n    1330:\t31 c0                \txor    eax,eax\n    1332:\t48 8d 05 d7 0c 00 00 \tlea    rax,[rip+0xcd7]        # 2010 <_IO_stdin_used+0x10>\n    1339:\t48 89 c7             \tmov    rdi,rax\n    133c:\te8 0f fd ff ff       \tcall   1050 <puts@plt>\n    1341:\t48 8d 05 f2 0c 00 00 \tlea    rax,[rip+0xcf2]        # 203a <_IO_stdin_used+0x3a>\n    1348:\t48 89 c7             \tmov    rdi,rax\n    134b:\te8 00 fd ff ff       \tcall   1050 <puts@plt>\n    1350:\t48 8d 05 ec 0c 00 00 \tlea    rax,[rip+0xcec]        # 2043 <_IO_stdin_used+0x43>\n    1357:\t48 89 c7             \tmov    rdi,rax\n    135a:\te8 f1 fc ff ff       \tcall   1050 <puts@plt>\n    135f:\t48 8d 05 e5 0c 00 00 \tlea    rax,[rip+0xce5]        # 204b <_IO_stdin_used+0x4b>\n    1366:\t48 89 c7             \tmov    rdi,rax\n    1369:\te8 e2 fc ff ff       \tcall   1050 <puts@plt>\n    136e:\t48 8d 05 de 0c 00 00 \tlea    rax,[rip+0xcde]        # 2053 <_IO_stdin_used+0x53>\n    1375:\t48 89 c7             \tmov    rdi,rax\n    1378:\te8 d3 fc ff ff       \tcall   1050 <puts@plt>\n    137d:\t48 8d 05 d7 0c 00 00 \tlea    rax,[rip+0xcd7]        # 205b <_IO_stdin_used+0x5b>\n    1384:\t48 89 c7             \tmov    rdi,rax\n    1387:\te8 c4 fc ff ff       \tcall   1050 <puts@plt>\n    138c:\t48 8d 05 d7 0c 00 00 \tlea    rax,[rip+0xcd7]        # 206a <_IO_stdin_used+0x6a>\n    1393:\t48 89 c7             \tmov    rdi,rax\n    1396:\tb8 00 00 00 00       \tmov    eax,0x0\n    139b:\te8 f0 fc ff ff       \tcall   1090 <printf@plt>\n    13a0:\t90                   \tnop\n    13a1:\t48 8b 45 f8          \tmov    rax,QWORD PTR [rbp-0x8]\n    13a5:\t64 48 2b 04 25 28 00 \tsub    rax,QWORD PTR fs:0x28\n    13ac:\t00 00 \n    13ae:\t74 05                \tje     13b5 <menu+0x9a>\n    13b0:\te8 cb fc ff ff       \tcall   1080 <__stack_chk_fail@plt>\n    13b5:\tc9                   \tleave\n    13b6:\tc3                   \tret\n\n00000000000013b7 <alloc_note>:\n    13b7:\t55                   \tpush   rbp\n    13b8:\t48 89 e5             \tmov    rbp,rsp\n    13bb:\t53                   \tpush   rbx\n    13bc:\t48 83 ec 18          \tsub    rsp,0x18\n    13c0:\t64 48 8b 04 25 28 00 \tmov    rax,QWORD PTR fs:0x28\n    13c7:\t00 00 \n    13c9:\t48 89 45 e8          \tmov    QWORD PTR [rbp-0x18],rax\n    13cd:\t31 c0                \txor    eax,eax\n    13cf:\t48 8d 05 97 0c 00 00 \tlea    rax,[rip+0xc97]        # 206d <_IO_stdin_used+0x6d>\n    13d6:\t48 89 c7             \tmov    rdi,rax\n    13d9:\tb8 00 00 00 00       \tmov    eax,0x0\n    13de:\te8 ad fc ff ff       \tcall   1090 <printf@plt>\n    13e3:\t48 8d 45 e4          \tlea    rax,[rbp-0x1c]\n    13e7:\t48 89 c6             \tmov    rsi,rax\n    13ea:\t48 8d 05 84 0c 00 00 \tlea    rax,[rip+0xc84]        # 2075 <_IO_stdin_used+0x75>\n    13f1:\t48 89 c7             \tmov    rdi,rax\n    13f4:\tb8 00 00 00 00       \tmov    eax,0x0\n    13f9:\te8 e2 fc ff ff       \tcall   10e0 <__isoc99_scanf@plt>\n    13fe:\t83 f8 01             \tcmp    eax,0x1\n    1401:\t0f 85 a5 00 00 00    \tjne    14ac <alloc_note+0xf5>\n    1407:\t8b 45 e4             \tmov    eax,DWORD PTR [rbp-0x1c]\n    140a:\t85 c0                \ttest   eax,eax\n    140c:\t0f 88 9a 00 00 00    \tjs     14ac <alloc_note+0xf5>\n    1412:\t8b 45 e4             \tmov    eax,DWORD PTR [rbp-0x1c]\n    1415:\t83 f8 07             \tcmp    eax,0x7\n    1418:\t0f 8f 8e 00 00 00    \tjg     14ac <alloc_note+0xf5>\n    141e:\te8 8d fc ff ff       \tcall   10b0 <getchar@plt>\n    1423:\t8b 5d e4             \tmov    ebx,DWORD PTR [rbp-0x1c]\n    1426:\tbf 68 00 00 00       \tmov    edi,0x68\n    142b:\te8 90 fc ff ff       \tcall   10c0 <malloc@plt>\n    1430:\t48 89 c1             \tmov    rcx,rax\n    1433:\t48 63 c3             \tmovsxd rax,ebx\n    1436:\t48 8d 14 c5 00 00 00 \tlea    rdx,[rax*8+0x0]\n    143d:\t00 \n    143e:\t48 8d 05 3b 2c 00 00 \tlea    rax,[rip+0x2c3b]        # 4080 <notes>\n    1445:\t48 89 0c 02          \tmov    QWORD PTR [rdx+rax*1],rcx\n    1449:\t8b 45 e4             \tmov    eax,DWORD PTR [rbp-0x1c]\n    144c:\t48 98                \tcdqe\n    144e:\t48 8d 14 c5 00 00 00 \tlea    rdx,[rax*8+0x0]\n    1455:\t00 \n    1456:\t48 8d 05 23 2c 00 00 \tlea    rax,[rip+0x2c23]        # 4080 <notes>\n    145d:\t48 8b 04 02          \tmov    rax,QWORD PTR [rdx+rax*1]\n    1461:\t48 8b 15 b8 2b 00 00 \tmov    rdx,QWORD PTR [rip+0x2bb8]        # 4020 <DEFAULT_TAG>\n    1468:\t48 89 50 60          \tmov    QWORD PTR [rax+0x60],rdx\n    146c:\t48 8d 05 05 0c 00 00 \tlea    rax,[rip+0xc05]        # 2078 <_IO_stdin_used+0x78>\n    1473:\t48 89 c7             \tmov    rdi,rax\n    1476:\tb8 00 00 00 00       \tmov    eax,0x0\n    147b:\te8 10 fc ff ff       \tcall   1090 <printf@plt>\n    1480:\t8b 45 e4             \tmov    eax,DWORD PTR [rbp-0x1c]\n    1483:\t48 98                \tcdqe\n    1485:\t48 8d 14 c5 00 00 00 \tlea    rdx,[rax*8+0x0]\n    148c:\t00 \n    148d:\t48 8d 05 ec 2b 00 00 \tlea    rax,[rip+0x2bec]        # 4080 <notes>\n    1494:\t48 8b 04 02          \tmov    rax,QWORD PTR [rdx+rax*1]\n    1498:\tba 60 00 00 00       \tmov    edx,0x60\n    149d:\t48 89 c6             \tmov    rsi,rax\n    14a0:\tbf 00 00 00 00       \tmov    edi,0x0\n    14a5:\te8 f6 fb ff ff       \tcall   10a0 <read@plt>\n    14aa:\teb 01                \tjmp    14ad <alloc_note+0xf6>\n    14ac:\t90                   \tnop\n    14ad:\t48 8b 45 e8          \tmov    rax,QWORD PTR [rbp-0x18]\n    14b1:\t64 48 2b 04 25 28 00 \tsub    rax,QWORD PTR fs:0x28\n    14b8:\t00 00 \n    14ba:\t74 05                \tje     14c1 <alloc_note+0x10a>\n    14bc:\te8 bf fb ff ff       \tcall   1080 <__stack_chk_fail@plt>\n    14c1:\t48 8b 5d f8          \tmov    rbx,QWORD PTR [rbp-0x8]\n    14c5:\tc9                   \tleave\n    14c6:\tc3                   \tret\n\n00000000000014c7 <free_note>:\n    14c7:\t55                   \tpush   rbp\n    14c8:\t48 89 e5             \tmov    rbp,rsp\n    14cb:\t48 83 ec 10          \tsub    rsp,0x10\n    14cf:\t64 48 8b 04 25 28 00 \tmov    rax,QWORD PTR fs:0x28\n    14d6:\t00 00 \n    14d8:\t48 89 45 f8          \tmov    QWORD PTR [rbp-0x8],rax\n    14dc:\t31 c0                \txor    eax,eax\n    14de:\t48 8d 05 88 0b 00 00 \tlea    rax,[rip+0xb88]        # 206d <_IO_stdin_used+0x6d>\n    14e5:\t48 89 c7             \tmov    rdi,rax\n    14e8:\tb8 00 00 00 00       \tmov    eax,0x0\n    14ed:\te8 9e fb ff ff       \tcall   1090 <printf@plt>\n    14f2:\t48 8d 45 f4          \tlea    rax,[rbp-0xc]\n    14f6:\t48 89 c6             \tmov    rsi,rax\n    14f9:\t48 8d 05 75 0b 00 00 \tlea    rax,[rip+0xb75]        # 2075 <_IO_stdin_used+0x75>\n    1500:\t48 89 c7             \tmov    rdi,rax\n    1503:\tb8 00 00 00 00       \tmov    eax,0x0\n    1508:\te8 d3 fb ff ff       \tcall   10e0 <__isoc99_scanf@plt>\n    150d:\t83 f8 01             \tcmp    eax,0x1\n    1510:\t75 31                \tjne    1543 <free_note+0x7c>\n    1512:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    1515:\t85 c0                \ttest   eax,eax\n    1517:\t78 2a                \tjs     1543 <free_note+0x7c>\n    1519:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    151c:\t83 f8 07             \tcmp    eax,0x7\n    151f:\t7f 22                \tjg     1543 <free_note+0x7c>\n    1521:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    1524:\t48 98                \tcdqe\n    1526:\t48 8d 14 c5 00 00 00 \tlea    rdx,[rax*8+0x0]\n    152d:\t00 \n    152e:\t48 8d 05 4b 2b 00 00 \tlea    rax,[rip+0x2b4b]        # 4080 <notes>\n    1535:\t48 8b 04 02          \tmov    rax,QWORD PTR [rdx+rax*1]\n    1539:\t48 89 c7             \tmov    rdi,rax\n    153c:\te8 ff fa ff ff       \tcall   1040 <free@plt>\n    1541:\teb 01                \tjmp    1544 <free_note+0x7d>\n    1543:\t90                   \tnop\n    1544:\t48 8b 45 f8          \tmov    rax,QWORD PTR [rbp-0x8]\n    1548:\t64 48 2b 04 25 28 00 \tsub    rax,QWORD PTR fs:0x28\n    154f:\t00 00 \n    1551:\t74 05                \tje     1558 <free_note+0x91>\n    1553:\te8 28 fb ff ff       \tcall   1080 <__stack_chk_fail@plt>\n    1558:\tc9                   \tleave\n    1559:\tc3                   \tret\n\n000000000000155a <edit_note>:\n    155a:\t55                   \tpush   rbp\n    155b:\t48 89 e5             \tmov    rbp,rsp\n    155e:\t48 83 ec 10          \tsub    rsp,0x10\n    1562:\t64 48 8b 04 25 28 00 \tmov    rax,QWORD PTR fs:0x28\n    1569:\t00 00 \n    156b:\t48 89 45 f8          \tmov    QWORD PTR [rbp-0x8],rax\n    156f:\t31 c0                \txor    eax,eax\n    1571:\t48 8d 05 f5 0a 00 00 \tlea    rax,[rip+0xaf5]        # 206d <_IO_stdin_used+0x6d>\n    1578:\t48 89 c7             \tmov    rdi,rax\n    157b:\tb8 00 00 00 00       \tmov    eax,0x0\n    1580:\te8 0b fb ff ff       \tcall   1090 <printf@plt>\n    1585:\t48 8d 45 f4          \tlea    rax,[rbp-0xc]\n    1589:\t48 89 c6             \tmov    rsi,rax\n    158c:\t48 8d 05 e2 0a 00 00 \tlea    rax,[rip+0xae2]        # 2075 <_IO_stdin_used+0x75>\n    1593:\t48 89 c7             \tmov    rdi,rax\n    1596:\tb8 00 00 00 00       \tmov    eax,0x0\n    159b:\te8 40 fb ff ff       \tcall   10e0 <__isoc99_scanf@plt>\n    15a0:\t83 f8 01             \tcmp    eax,0x1\n    15a3:\t75 54                \tjne    15f9 <edit_note+0x9f>\n    15a5:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    15a8:\t85 c0                \ttest   eax,eax\n    15aa:\t78 4d                \tjs     15f9 <edit_note+0x9f>\n    15ac:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    15af:\t83 f8 07             \tcmp    eax,0x7\n    15b2:\t7f 45                \tjg     15f9 <edit_note+0x9f>\n    15b4:\te8 f7 fa ff ff       \tcall   10b0 <getchar@plt>\n    15b9:\t48 8d 05 b8 0a 00 00 \tlea    rax,[rip+0xab8]        # 2078 <_IO_stdin_used+0x78>\n    15c0:\t48 89 c7             \tmov    rdi,rax\n    15c3:\tb8 00 00 00 00       \tmov    eax,0x0\n    15c8:\te8 c3 fa ff ff       \tcall   1090 <printf@plt>\n    15cd:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    15d0:\t48 98                \tcdqe\n    15d2:\t48 8d 14 c5 00 00 00 \tlea    rdx,[rax*8+0x0]\n    15d9:\t00 \n    15da:\t48 8d 05 9f 2a 00 00 \tlea    rax,[rip+0x2a9f]        # 4080 <notes>\n    15e1:\t48 8b 04 02          \tmov    rax,QWORD PTR [rdx+rax*1]\n    15e5:\tba 60 00 00 00       \tmov    edx,0x60\n    15ea:\t48 89 c6             \tmov    rsi,rax\n    15ed:\tbf 00 00 00 00       \tmov    edi,0x0\n    15f2:\te8 a9 fa ff ff       \tcall   10a0 <read@plt>\n    15f7:\teb 01                \tjmp    15fa <edit_note+0xa0>\n    15f9:\t90                   \tnop\n    15fa:\t48 8b 45 f8          \tmov    rax,QWORD PTR [rbp-0x8]\n    15fe:\t64 48 2b 04 25 28 00 \tsub    rax,QWORD PTR fs:0x28\n    1605:\t00 00 \n    1607:\t74 05                \tje     160e <edit_note+0xb4>\n    1609:\te8 72 fa ff ff       \tcall   1080 <__stack_chk_fail@plt>\n    160e:\tc9                   \tleave\n    160f:\tc3                   \tret\n\n0000000000001610 <read_note>:\n    1610:\t55                   \tpush   rbp\n    1611:\t48 89 e5             \tmov    rbp,rsp\n    1614:\t48 83 ec 10          \tsub    rsp,0x10\n    1618:\t64 48 8b 04 25 28 00 \tmov    rax,QWORD PTR fs:0x28\n    161f:\t00 00 \n    1621:\t48 89 45 f8          \tmov    QWORD PTR [rbp-0x8],rax\n    1625:\t31 c0                \txor    eax,eax\n    1627:\t48 8d 05 3f 0a 00 00 \tlea    rax,[rip+0xa3f]        # 206d <_IO_stdin_used+0x6d>\n    162e:\t48 89 c7             \tmov    rdi,rax\n    1631:\tb8 00 00 00 00       \tmov    eax,0x0\n    1636:\te8 55 fa ff ff       \tcall   1090 <printf@plt>\n    163b:\t48 8d 45 f4          \tlea    rax,[rbp-0xc]\n    163f:\t48 89 c6             \tmov    rsi,rax\n    1642:\t48 8d 05 2c 0a 00 00 \tlea    rax,[rip+0xa2c]        # 2075 <_IO_stdin_used+0x75>\n    1649:\t48 89 c7             \tmov    rdi,rax\n    164c:\tb8 00 00 00 00       \tmov    eax,0x0\n    1651:\te8 8a fa ff ff       \tcall   10e0 <__isoc99_scanf@plt>\n    1656:\t83 f8 01             \tcmp    eax,0x1\n    1659:\t75 4a                \tjne    16a5 <read_note+0x95>\n    165b:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    165e:\t85 c0                \ttest   eax,eax\n    1660:\t78 43                \tjs     16a5 <read_note+0x95>\n    1662:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    1665:\t83 f8 07             \tcmp    eax,0x7\n    1668:\t7f 3b                \tjg     16a5 <read_note+0x95>\n    166a:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    166d:\t48 98                \tcdqe\n    166f:\t48 8d 14 c5 00 00 00 \tlea    rdx,[rax*8+0x0]\n    1676:\t00 \n    1677:\t48 8d 05 02 2a 00 00 \tlea    rax,[rip+0x2a02]        # 4080 <notes>\n    167e:\t48 8b 04 02          \tmov    rax,QWORD PTR [rdx+rax*1]\n    1682:\tba 68 00 00 00       \tmov    edx,0x68\n    1687:\t48 89 c6             \tmov    rsi,rax\n    168a:\tbf 01 00 00 00       \tmov    edi,0x1\n    168f:\te8 cc f9 ff ff       \tcall   1060 <write@plt>\n    1694:\t48 8d 05 e4 09 00 00 \tlea    rax,[rip+0x9e4]        # 207f <_IO_stdin_used+0x7f>\n    169b:\t48 89 c7             \tmov    rdi,rax\n    169e:\te8 ad f9 ff ff       \tcall   1050 <puts@plt>\n    16a3:\teb 01                \tjmp    16a6 <read_note+0x96>\n    16a5:\t90                   \tnop\n    16a6:\t48 8b 45 f8          \tmov    rax,QWORD PTR [rbp-0x8]\n    16aa:\t64 48 2b 04 25 28 00 \tsub    rax,QWORD PTR fs:0x28\n    16b1:\t00 00 \n    16b3:\t74 05                \tje     16ba <read_note+0xaa>\n    16b5:\te8 c6 f9 ff ff       \tcall   1080 <__stack_chk_fail@plt>\n    16ba:\tc9                   \tleave\n    16bb:\tc3                   \tret\n\n00000000000016bc <check_admin>:\n    16bc:\t55                   \tpush   rbp\n    16bd:\t48 89 e5             \tmov    rbp,rsp\n    16c0:\t48 83 ec 10          \tsub    rsp,0x10\n    16c4:\t64 48 8b 04 25 28 00 \tmov    rax,QWORD PTR fs:0x28\n    16cb:\t00 00 \n    16cd:\t48 89 45 f8          \tmov    QWORD PTR [rbp-0x8],rax\n    16d1:\t31 c0                \txor    eax,eax\n    16d3:\t48 8d 05 36 29 00 00 \tlea    rax,[rip+0x2936]        # 4010 <admin_key>\n    16da:\t48 89 c7             \tmov    rdi,rax\n    16dd:\te8 9f fb ff ff       \tcall   1281 <hash>\n    16e2:\t48 89 c2             \tmov    rdx,rax\n    16e5:\t48 8b 05 d4 29 00 00 \tmov    rax,QWORD PTR [rip+0x29d4]        # 40c0 <admin_hash>\n    16ec:\t48 39 c2             \tcmp    rdx,rax\n    16ef:\t75 39                \tjne    172a <check_admin+0x6e>\n    16f1:\t48 8d 05 88 09 00 00 \tlea    rax,[rip+0x988]        # 2080 <_IO_stdin_used+0x80>\n    16f8:\t48 89 c7             \tmov    rdi,rax\n    16fb:\te8 30 f9 ff ff       \tcall   1030 <getenv@plt>\n    1700:\t48 89 45 f0          \tmov    QWORD PTR [rbp-0x10],rax\n    1704:\t48 83 7d f0 00       \tcmp    QWORD PTR [rbp-0x10],0x0\n    1709:\t74 06                \tje     1711 <check_admin+0x55>\n    170b:\t48 8b 45 f0          \tmov    rax,QWORD PTR [rbp-0x10]\n    170f:\teb 07                \tjmp    1718 <check_admin+0x5c>\n    1711:\t48 8d 05 71 09 00 00 \tlea    rax,[rip+0x971]        # 2089 <_IO_stdin_used+0x89>\n    1718:\t48 89 c7             \tmov    rdi,rax\n    171b:\te8 30 f9 ff ff       \tcall   1050 <puts@plt>\n    1720:\tbf 00 00 00 00       \tmov    edi,0x0\n    1725:\te8 c6 f9 ff ff       \tcall   10f0 <exit@plt>\n    172a:\t48 8d 05 6e 09 00 00 \tlea    rax,[rip+0x96e]        # 209f <_IO_stdin_used+0x9f>\n    1731:\t48 89 c7             \tmov    rdi,rax\n    1734:\te8 17 f9 ff ff       \tcall   1050 <puts@plt>\n    1739:\t90                   \tnop\n    173a:\t48 8b 45 f8          \tmov    rax,QWORD PTR [rbp-0x8]\n    173e:\t64 48 2b 04 25 28 00 \tsub    rax,QWORD PTR fs:0x28\n    1745:\t00 00 \n    1747:\t74 05                \tje     174e <check_admin+0x92>\n    1749:\te8 32 f9 ff ff       \tcall   1080 <__stack_chk_fail@plt>\n    174e:\tc9                   \tleave\n    174f:\tc3                   \tret\n\n0000000000001750 <main>:\n    1750:\t55                   \tpush   rbp\n    1751:\t48 89 e5             \tmov    rbp,rsp\n    1754:\t48 83 ec 10          \tsub    rsp,0x10\n    1758:\t64 48 8b 04 25 28 00 \tmov    rax,QWORD PTR fs:0x28\n    175f:\t00 00 \n    1761:\t48 89 45 f8          \tmov    QWORD PTR [rbp-0x8],rax\n    1765:\t31 c0                \txor    eax,eax\n    1767:\tb8 00 00 00 00       \tmov    eax,0x0\n    176c:\te8 88 fa ff ff       \tcall   11f9 <init>\n    1771:\t48 b8 56 41 53 49 4c \tmovabs rax,0x5f59494c49534156\n    1778:\t49 59 5f \n    177b:\t48 89 05 8e 28 00 00 \tmov    QWORD PTR [rip+0x288e],rax        # 4010 <admin_key>\n    1782:\t48 b8 5f 53 45 43 52 \tmovabs rax,0x5445524345535f\n    1789:\t45 54 00 \n    178c:\t48 89 05 84 28 00 00 \tmov    QWORD PTR [rip+0x2884],rax        # 4017 <admin_key+0x7>\n    1793:\t48 8d 05 76 28 00 00 \tlea    rax,[rip+0x2876]        # 4010 <admin_key>\n    179a:\t48 89 c7             \tmov    rdi,rax\n    179d:\te8 df fa ff ff       \tcall   1281 <hash>\n    17a2:\t48 89 05 17 29 00 00 \tmov    QWORD PTR [rip+0x2917],rax        # 40c0 <admin_hash>\n    17a9:\tc7 05 5d 28 00 00 4e \tmov    DWORD PTR [rip+0x285d],0x45504f4e        # 4010 <admin_key>\n    17b0:\t4f 50 45 \n    17b3:\tc6 05 5a 28 00 00 00 \tmov    BYTE PTR [rip+0x285a],0x0        # 4014 <admin_key+0x4>\n    17ba:\tb8 00 00 00 00       \tmov    eax,0x0\n    17bf:\te8 57 fb ff ff       \tcall   131b <menu>\n    17c4:\t48 8d 45 f4          \tlea    rax,[rbp-0xc]\n    17c8:\t48 89 c6             \tmov    rsi,rax\n    17cb:\t48 8d 05 a3 08 00 00 \tlea    rax,[rip+0x8a3]        # 2075 <_IO_stdin_used+0x75>\n    17d2:\t48 89 c7             \tmov    rdi,rax\n    17d5:\tb8 00 00 00 00       \tmov    eax,0x0\n    17da:\te8 01 f9 ff ff       \tcall   10e0 <__isoc99_scanf@plt>\n    17df:\t83 f8 01             \tcmp    eax,0x1\n    17e2:\t75 6a                \tjne    184e <main+0xfe>\n    17e4:\t8b 45 f4             \tmov    eax,DWORD PTR [rbp-0xc]\n    17e7:\t83 f8 05             \tcmp    eax,0x5\n    17ea:\t77 ce                \tja     17ba <main+0x6a>\n    17ec:\t89 c0                \tmov    eax,eax\n    17ee:\t48 8d 14 85 00 00 00 \tlea    rdx,[rax*4+0x0]\n    17f5:\t00 \n    17f6:\t48 8d 05 bf 08 00 00 \tlea    rax,[rip+0x8bf]        # 20bc <_IO_stdin_used+0xbc>\n    17fd:\t8b 04 02             \tmov    eax,DWORD PTR [rdx+rax*1]\n    1800:\t48 98                \tcdqe\n    1802:\t48 8d 15 b3 08 00 00 \tlea    rdx,[rip+0x8b3]        # 20bc <_IO_stdin_used+0xbc>\n    1809:\t48 01 d0             \tadd    rax,rdx\n    180c:\tff e0                \tjmp    rax\n    180e:\tb8 00 00 00 00       \tmov    eax,0x0\n    1813:\te8 9f fb ff ff       \tcall   13b7 <alloc_note>\n    1818:\teb 2f                \tjmp    1849 <main+0xf9>\n    181a:\tb8 00 00 00 00       \tmov    eax,0x0\n    181f:\te8 a3 fc ff ff       \tcall   14c7 <free_note>\n    1824:\teb 23                \tjmp    1849 <main+0xf9>\n    1826:\tb8 00 00 00 00       \tmov    eax,0x0\n    182b:\te8 2a fd ff ff       \tcall   155a <edit_note>\n    1830:\teb 17                \tjmp    1849 <main+0xf9>\n    1832:\tb8 00 00 00 00       \tmov    eax,0x0\n    1837:\te8 d4 fd ff ff       \tcall   1610 <read_note>\n    183c:\teb 0b                \tjmp    1849 <main+0xf9>\n    183e:\tb8 00 00 00 00       \tmov    eax,0x0\n    1843:\te8 74 fe ff ff       \tcall   16bc <check_admin>\n    1848:\t90                   \tnop\n    1849:\te9 6c ff ff ff       \tjmp    17ba <main+0x6a>\n    184e:\t90                   \tnop\n    184f:\tb8 00 00 00 00       \tmov    eax,0x0\n    1854:\t48 8b 55 f8          \tmov    rdx,QWORD PTR [rbp-0x8]\n    1858:\t64 48 2b 14 25 28 00 \tsub    rdx,QWORD PTR fs:0x28\n    185f:\t00 00 \n    1861:\t74 05                \tje     1868 <main+0x118>\n    1863:\te8 18 f8 ff ff       \tcall   1080 <__stack_chk_fail@plt>\n    1868:\tc9                   \tleave\n    1869:\tc3                   \tret\n\nDisassembly of section .fini:\n\n000000000000186c <_fini>:\n    186c:\t48 83 ec 08          \tsub    rsp,0x8\n    1870:\t48 83 c4 08          \tadd    rsp,0x8\n    1874:\tc3                   \tret\n",
+      "stderr": "",
+      "truncated": false,
+      "data": null
+    },
+    {
+      "name": "pwninit",
+      "ok": true,
+      "status": "OK",
+      "note": "ran",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": [
+        "pwninit"
+      ],
+      "rc": 0,
+      "timed_out": false,
+      "duration_sec": 0.006,
+      "stdout": "bin: ./bad_mood\n\ncopying ./bad_mood to ./bad_mood_patched\nrunning patchelf on ./bad_mood_patched\nwriting solve.py stub\n",
+      "stderr": "",
+      "truncated": false,
+      "data": null
+    },
+    {
+      "name": "local_offset",
+      "ok": false,
+      "status": "FAIL",
+      "note": "local run failed: [Errno 2] No such file or directory: '/home/ctf/Downloads/Bad mood/bad_mood'",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": null
+    },
+    {
+      "name": "rop_summary",
+      "ok": true,
+      "status": "OK",
+      "note": "pwntools ROP summary",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": "{\n  \"arch\": \"amd64\",\n  \"gadgets\": {\n    \"ret\": 4118,\n    \"pop_rdi_ret\": null,\n    \"pop_rsi_ret\": null,\n    \"pop_rdx_ret\": null,\n    \"syscall\": null\n  }\n}",
+      "stderr": "",
+      "truncated": null,
+      "data": {
+        "arch": "amd64",
+        "gadgets": {
+          "ret": 4118,
+          "pop_rdi_ret": null,
+          "pop_rsi_ret": null,
+          "pop_rdx_ret": null,
+          "syscall": null
+        }
+      }
+    },
+    {
+      "name": "advanced_rop",
+      "ok": true,
+      "status": "OK",
+      "note": "advanced ROP analysis complete",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "basic_gadgets": {
+          "ret": "0x1016"
+        },
+        "ret2dlresolve": {
+          "feasible": false,
+          "reason": "Full RELRO - ret2dlresolve not possible",
+          "requirements": []
+        },
+        "srop": {
+          "feasible": false,
+          "note": "No suitable gadgets for SROP"
+        },
+        "syscall_chain": {
+          "strategy": "x64 syscall chain",
+          "requirements": {
+            "pop_rax": "set syscall number",
+            "pop_rdi": "set arg1",
+            "pop_rsi": "set arg2",
+            "pop_rdx": "set arg3",
+            "syscall": "invoke syscall"
+          },
+          "example_chain": [
+            "1. execve: rax=59, rdi=&'/bin/sh', rsi=0, rdx=0",
+            "2. read: rax=0, rdi=0, rsi=writable_addr, rdx=size",
+            "3. open+read+write for ORW: useful if seccomp blocks execve"
+          ]
+        },
+        "stack_pivot": {
+          "found": true,
+          "gadgets": [
+            {
+              "gadget": "leave ; ret",
+              "address": "0x127f"
+            }
+          ],
+          "usage": "Use to redirect RSP/ESP to controlled memory region"
+        }
+      }
+    },
+    {
+      "name": "vulnerability_detection",
+      "ok": true,
+      "status": "OK",
+      "note": "found 2 potential vulnerabilities",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "total_findings": 2,
+        "by_severity": {
+          "critical": 0,
+          "high": 1,
+          "medium": 1,
+          "low": 0
+        },
+        "vulnerabilities": [
+          {
+            "vuln_type": "dangerous_function_printf",
+            "severity": "medium",
+            "description": "Uses dangerous function: printf",
+            "location": null,
+            "evidence": "Symbol found: printf",
+            "exploitation_notes": [
+              "Potential format string if user input not sanitized"
+            ]
+          },
+          {
+            "vuln_type": "format_string",
+            "severity": "high",
+            "description": "Uses printf - potential format string vulnerability",
+            "location": null,
+            "evidence": "Symbol found: printf",
+            "exploitation_notes": [
+              "If user input goes directly to printf: format string bug",
+              "Can leak stack/memory with %p, %x, %s",
+              "Can write with %n",
+              "Overwrite GOT entries to hijack control flow"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "heap_analysis",
+      "ok": true,
+      "status": "OK",
+      "note": "heap analysis complete",
+      "ts": "2026-01-11T21:03:08",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "heap_functions": [
+          "free_note",
+          "free",
+          "plt.free",
+          "malloc",
+          "plt.malloc",
+          "got.free",
+          "got.malloc"
+        ],
+        "glibc_version_hints": "unknown - check dynamically",
+        "potential_vulnerabilities": [
+          {
+            "type": "use_after_free",
+            "likelihood": "check manually - UAF pattern possible",
+            "note": "Binary uses malloc/free - check for UAF via dynamic analysis"
+          }
+        ],
+        "exploitation_techniques": [
+          "tcache poisoning",
+          "fastbin attack",
+          "House of Force",
+          "House of Orange",
+          "House of Spirit"
+        ]
+      }
+    },
+    {
+      "name": "format_string_analysis",
+      "ok": true,
+      "status": "OK",
+      "note": "format string analysis complete",
+      "ts": "2026-01-11T21:03:09",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "vulnerable_functions": [
+          "printf",
+          "plt.printf",
+          "got.printf"
+        ],
+        "offset_calculation": {
+          "note": "Could not determine offset automatically"
+        },
+        "leak_strategy": [
+          "Leak canary: %p at stack offset N",
+          "Leak PIE base: find code pointer on stack",
+          "Leak libc: find libc pointer (environ, __libc_start_main)",
+          "Use %s to dereference and read memory"
+        ],
+        "write_strategy": [
+          "Use %n to write to arbitrary address",
+          "Use %hhn for byte-by-byte write",
+          "Chain multiple format strings for large values",
+          "Overwrite GOT entry if partial RELRO"
+        ]
+      }
+    },
+    {
+      "name": "shellcode_analysis",
+      "ok": true,
+      "status": "OK",
+      "note": "shellcode analysis complete",
+      "ts": "2026-01-11T21:03:09",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "nx_enabled": true,
+        "writable_executable": [
+          {
+            "note": "No RWX segments found"
+          }
+        ],
+        "shellcode_strategy": [
+          "NX is enabled - direct shellcode injection not possible",
+          "Options:",
+          "1. ROP to mprotect() to make stack executable",
+          "2. ROP to mmap() new RWX region",
+          "3. Use ROP exclusively (ret2libc, ret2syscall)"
+        ],
+        "generated_shellcode": {}
+      }
+    },
+    {
+      "name": "libc_analysis",
+      "ok": true,
+      "status": "OK",
+      "note": "libc analysis complete",
+      "ts": "2026-01-11T21:03:09",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "libc_path": "/lib/x86_64-linux-gnu/libc.so.6",
+        "one_gadgets": [
+          {
+            "offset": "0xddf43",
+            "constraints": [
+              "address rbp-0x38 is writable",
+              "rdi == NULL || {\"/bin/sh\", rdi, NULL} is a valid argv",
+              "[r13] == NULL || r13 == NULL || r13 is a valid envp"
+            ]
+          },
+          {
+            "offset": "0xfb062",
+            "constraints": [
+              "[rsp+0x70] == NULL || {[rsp+0x70], [rsp+0x78], [rsp+0x80], [rsp+0x88], ...} is a valid argv",
+              "[[rsp+0xf0]] == NULL || [rsp+0xf0] == NULL || [rsp+0xf0] is a valid envp",
+              "[rsp+0x40] == NULL || (s32)[[rsp+0x40]+0x4] <= 0"
+            ]
+          },
+          {
+            "offset": "0xfb06a",
+            "constraints": [
+              "[rsp+0x70] == NULL || {[rsp+0x70], [rsp+0x78], [rsp+0x80], [rsp+0x88], ...} is a valid argv",
+              "[r13] == NULL || r13 == NULL || r13 is a valid envp",
+              "[rsp+0x40] == NULL || (s32)[[rsp+0x40]+0x4] <= 0"
+            ]
+          },
+          {
+            "offset": "0xfb06f",
+            "constraints": [
+              "[rsp+0x70] == NULL || {[rsp+0x70], [rsp+0x78], [rsp+0x80], [rsp+0x88], ...} is a valid argv",
+              "[r13] == NULL || r13 == NULL || r13 is a valid envp",
+              "rdx == NULL || (s32)[rdx+0x4] <= 0"
+            ]
+          }
+        ],
+        "useful_offsets": {
+          "system": "0x53110",
+          "execve": "0xdddd0",
+          "open": "0x103770",
+          "read": "0x103e90",
+          "write": "0x104920",
+          "mprotect": "0x10d620",
+          "dup2": "0xff860",
+          "/bin/sh": "0x1a7ea4"
+        },
+        "identification_strategy": [
+          "1. Leak multiple libc addresses (puts, printf, etc.)",
+          "2. Calculate offsets between leaked addresses",
+          "3. Use libc-database: https://libc.blukat.me/ or libc.rip",
+          "4. Alternative: use pwninit to auto-download matching libc"
+        ]
+      }
+    },
+    {
+      "name": "ghidra_decompile",
+      "ok": true,
+      "status": "OK",
+      "note": "rc=0 timeout=False duration=7.095s",
+      "ts": "2026-01-11T21:03:16",
+      "cmd": [
+        "/usr/share/ghidra/support/analyzeHeadless",
+        "/home/ctf/Downloads/Bad mood/.ghidra_proj",
+        "proj",
+        "-import",
+        "/home/ctf/Downloads/Bad mood/bad_mood",
+        "-scriptPath",
+        "/home/ctf/Downloads/Bad mood/.ghidra_scripts",
+        "-postScript",
+        "DumpAllDecompiled.py",
+        "/home/ctf/Downloads/Bad mood/ghidra_decompiled.c"
+      ],
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": "/* Ghidra pseudocode dump (best-effort) */\n\n/* ===== Function: _init @ 00101000 ===== */\n\nvoid _init(void)\n\n{\n  if (PTR___gmon_start___00103fe8 != (undefined *)0x0) {\n    (*(code *)PTR___gmon_start___00103fe8)();\n  }\n  return;\n}\n\n\n/* ===== Function: FUN_00101020 @ 00101020 ===== */\n\nvoid FUN_00101020(void)\n\n{\n  (*(code *)PTR_00103f68)();\n  return;\n}\n\n\n/* ===== Function: getenv @ 00101030 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nchar * getenv(char *__name)\n\n{\n  char *pcVar1;\n  \n  pcVar1 = (char *)(*(code *)PTR_getenv_00103f70)();\n  return pcVar1;\n}\n\n\n/* ===== Function: free @ 00101040 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid free(void *__ptr)\n\n{\n  (*(code *)PTR_free_00103f78)();\n  return;\n}\n\n\n/* ===== Function: puts @ 00101050 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint puts(char *__s)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_puts_00103f80)();\n  return iVar1;\n}\n\n\n/* ===== Function: write @ 00101060 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nssize_t write(int __fd,void *__buf,size_t __n)\n\n{\n  ssize_t sVar1;\n  \n  sVar1 = (*(code *)PTR_write_00103f88)();\n  return sVar1;\n}\n\n\n/* ===== Function: strlen @ 00101070 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nsize_t strlen(char *__s)\n\n{\n  size_t sVar1;\n  \n  sVar1 = (*(code *)PTR_strlen_00103f90)();\n  return sVar1;\n}\n\n\n/* ===== Function: __stack_chk_fail @ 00101080 ===== */\n\nvoid __stack_chk_fail(void)\n\n{\n  (*(code *)PTR___stack_chk_fail_00103f98)();\n  return;\n}\n\n\n/* ===== Function: printf @ 00101090 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint printf(char *__format,...)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_printf_00103fa0)();\n  return iVar1;\n}\n\n\n/* ===== Function: read @ 001010a0 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nssize_t read(int __fd,void *__buf,size_t __nbytes)\n\n{\n  ssize_t sVar1;\n  \n  sVar1 = (*(code *)PTR_read_00103fa8)();\n  return sVar1;\n}\n\n\n/* ===== Function: getchar @ 001010b0 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint getchar(void)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_getchar_00103fb0)();\n  return iVar1;\n}\n\n\n/* ===== Function: malloc @ 001010c0 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * malloc(size_t __size)\n\n{\n  void *pvVar1;\n  \n  pvVar1 = (void *)(*(code *)PTR_malloc_00103fb8)();\n  return pvVar1;\n}\n\n\n/* ===== Function: setvbuf @ 001010d0 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint setvbuf(FILE *__stream,char *__buf,int __modes,size_t __n)\n\n{\n  int iVar1;\n  \n  iVar1 = (*(code *)PTR_setvbuf_00103fc0)();\n  return iVar1;\n}\n\n\n/* ===== Function: __isoc99_scanf @ 001010e0 ===== */\n\nvoid __isoc99_scanf(void)\n\n{\n  (*(code *)PTR___isoc99_scanf_00103fc8)();\n  return;\n}\n\n\n/* ===== Function: exit @ 001010f0 ===== */\n\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid exit(int __status)\n\n{\n  (*(code *)PTR_exit_00103fd0)();\n  return;\n}\n\n\n/* ===== Function: __cxa_finalize @ 00101100 ===== */\n\nvoid __cxa_finalize(void)\n\n{\n  (*(code *)PTR___cxa_finalize_00103ff8)();\n  return;\n}\n\n\n/* ===== Function: _start @ 00101110 ===== */\n\nvoid processEntry _start(undefined8 param_1,undefined8 param_2)\n\n{\n  undefined1 auStack_8 [8];\n  \n  (*(code *)PTR___libc_start_main_00103fd8)(main,param_2,&stack0x00000008,0,0,param_1,auStack_8);\n  do {\n                    /* WARNING: Do nothing block with infinite loop */\n  } while( true );\n}\n\n\n/* ===== Function: deregister_tm_clones @ 00101140 ===== */\n\n/* WARNING: Removing unreachable block (ram,0x00101153) */\n/* WARNING: Removing unreachable block (ram,0x0010115f) */\n\nvoid deregister_tm_clones(void)\n\n{\n  return;\n}\n\n\n/* ===== Function: register_tm_clones @ 00101170 ===== */\n\n/* WARNING: Removing unreachable block (ram,0x00101194) */\n/* WARNING: Removing unreachable block (ram,0x001011a0) */\n\nvoid register_tm_clones(void)\n\n{\n  return;\n}\n\n\n/* ===== Function: __do_global_dtors_aux @ 001011b0 ===== */\n\nvoid __do_global_dtors_aux(void)\n\n{\n  if (completed_0 == '\\0') {\n    if (PTR___cxa_finalize_00103ff8 != (undefined *)0x0) {\n      __cxa_finalize(__dso_handle);\n    }\n    deregister_tm_clones();\n    completed_0 = 1;\n    return;\n  }\n  return;\n}\n\n\n/* ===== Function: frame_dummy @ 001011f0 ===== */\n\nvoid frame_dummy(void)\n\n{\n  register_tm_clones();\n  return;\n}\n\n\n/* ===== Function: init @ 001011f9 ===== */\n\nint init(EVP_PKEY_CTX *ctx)\n\n{\n  long lVar1;\n  long in_FS_OFFSET;\n  \n  lVar1 = *(long *)(in_FS_OFFSET + 0x28);\n  setvbuf(stdin,(char *)0x0,2,0);\n  setvbuf(stdout,(char *)0x0,2,0);\n  setvbuf(stderr,(char *)0x0,2,0);\n  if (lVar1 != *(long *)(in_FS_OFFSET + 0x28)) {\n                    /* WARNING: Subroutine does not return */\n    __stack_chk_fail();\n  }\n  return 0;\n}\n\n\n/* ===== Function: hash @ 00101281 ===== */\n\nulong hash(char *param_1)\n\n{\n  long lVar1;\n  size_t sVar2;\n  long in_FS_OFFSET;\n  int local_2c;\n  ulong local_28;\n  \n  lVar1 = *(long *)(in_FS_OFFSET + 0x28);\n  local_28 = 0xcbf29ce484222325;\n  local_2c = 0;\n  while( true ) {\n    sVar2 = strlen(param_1);\n    if (sVar2 <= (ulong)(long)local_2c) break;\n    local_28 = (local_28 ^ (long)param_1[local_2c]) * 0x100000001b3;\n    local_2c = local_2c + 1;\n  }\n  if (lVar1 != *(long *)(in_FS_OFFSET + 0x28)) {\n                    /* WARNING: Subroutine does not return */\n    __stack_chk_fail();\n  }\n  return local_28;\n}\n\n\n/* ===== Function: menu @ 0010131b ===== */\n\nvoid menu(void)\n\n{\n  long lVar1;\n  long in_FS_OFFSET;\n  \n  lVar1 = *(long *)(in_FS_OFFSET + 0x28);\n  puts(&DAT_00102010);\n  puts(\"1. Alloc\");\n  puts(\"2. Free\");\n  puts(\"3. Edit\");\n  puts(\"4. Read\");\n  puts(\"5. Check admin\");\n  printf(\"> \");\n  if (lVar1 != *(long *)(in_FS_OFFSET + 0x28)) {\n                    /* WARNING: Subroutine does not return */\n    __stack_chk_fail();\n  }\n  return;\n}\n\n\n/* ===== Function: alloc_note @ 001013b7 ===== */\n\nvoid alloc_note(void)\n\n{\n  int iVar1;\n  void *pvVar2;\n  long in_FS_OFFSET;\n  int local_24;\n  long local_20;\n  \n  local_20 = *(long *)(in_FS_OFFSET + 0x28);\n  printf(\"Index: \");\n  iVar1 = __isoc99_scanf(&DAT_00102075,&local_24);\n  if (((iVar1 == 1) && (-1 < local_24)) && (local_24 < 8)) {\n    getchar();\n    iVar1 = local_24;\n    pvVar2 = malloc(0x68);\n    *(void **)(notes + (long)iVar1 * 8) = pvVar2;\n    *(undefined **)(*(long *)(notes + (long)local_24 * 8) + 0x60) = DEFAULT_TAG;\n    printf(\"Data: \");\n    read(0,*(void **)(notes + (long)local_24 * 8),0x60);\n  }\n  if (local_20 != *(long *)(in_FS_OFFSET + 0x28)) {\n                    /* WARNING: Subroutine does not return */\n    __stack_chk_fail();\n  }\n  return;\n}\n\n\n/* ===== Function: free_note @ 001014c7 ===== */\n\nvoid free_note(void)\n\n{\n  int iVar1;\n  long in_FS_OFFSET;\n  int local_14;\n  long local_10;\n  \n  local_10 = *(long *)(in_FS_OFFSET + 0x28);\n  printf(\"Index: \");\n  iVar1 = __isoc99_scanf(&DAT_00102075,&local_14);\n  if (((iVar1 == 1) && (-1 < local_14)) && (local_14 < 8)) {\n    free(*(void **)(notes + (long)local_14 * 8));\n  }\n  if (local_10 != *(long *)(in_FS_OFFSET + 0x28)) {\n                    /* WARNING: Subroutine does not return */\n    __stack_chk_fail();\n  }\n  return;\n}\n\n\n/* ===== Function: edit_note @ 0010155a ===== */\n\nvoid edit_note(void)\n\n{\n  int iVar1;\n  long in_FS_OFFSET;\n  int local_14;\n  long local_10;\n  \n  local_10 = *(long *)(in_FS_OFFSET + 0x28);\n  printf(\"Index: \");\n  iVar1 = __isoc99_scanf(&DAT_00102075,&local_14);\n  if (((iVar1 == 1) && (-1 < local_14)) && (local_14 < 8)) {\n    getchar();\n    printf(\"Data: \");\n    read(0,*(void **)(notes + (long)local_14 * 8),0x60);\n  }\n  if (local_10 != *(long *)(in_FS_OFFSET + 0x28)) {\n                    /* WARNING: Subroutine does not return */\n    __stack_chk_fail();\n  }\n  return;\n}\n\n\n/* ===== Function: read_note @ 00101610 ===== */\n\nvoid read_note(void)\n\n{\n  int iVar1;\n  long in_FS_OFFSET;\n  int local_14;\n  long local_10;\n  \n  local_10 = *(long *)(in_FS_OFFSET + 0x28);\n  printf(\"Index: \");\n  iVar1 = __isoc99_scanf(&DAT_00102075,&local_14);\n  if (((iVar1 == 1) && (-1 < local_14)) && (local_14 < 8)) {\n    write(1,*(void **)(notes + (long)local_14 * 8),0x68);\n    puts(\"\");\n  }\n  if (local_10 != *(long *)(in_FS_OFFSET + 0x28)) {\n                    /* WARNING: Subroutine does not return */\n    __stack_chk_fail();\n  }\n  return;\n}\n\n\n/* ===== Function: check_admin @ 001016bc ===== */\n\nvoid check_admin(void)\n\n{\n  long lVar1;\n  long lVar2;\n  char *__s;\n  long in_FS_OFFSET;\n  \n  lVar1 = *(long *)(in_FS_OFFSET + 0x28);\n  lVar2 = hash(admin_key);\n  if (lVar2 == admin_hash) {\n    __s = getenv(\"FLAG_VAL\");\n    if (__s == (char *)0x0) {\n      __s = \"CTF{pie_is_not_a_lie}\";\n    }\n    puts(__s);\n                    /* WARNING: Subroutine does not return */\n    exit(0);\n  }\n  puts(\"Vasily doesn\\'t trust you.\");\n  if (lVar1 == *(long *)(in_FS_OFFSET + 0x28)) {\n    return;\n  }\n                    /* WARNING: Subroutine does not return */\n  __stack_chk_fail();\n}\n\n\n/* ===== Function: main @ 00101750 ===== */\n\nundefined8 main(EVP_PKEY_CTX *param_1)\n\n{\n  int iVar1;\n  long in_FS_OFFSET;\n  undefined4 local_14;\n  long local_10;\n  \n  local_10 = *(long *)(in_FS_OFFSET + 0x28);\n  init(param_1);\n  admin_key._0_4_ = 0x49534156;\n  admin_key[4] = 0x4c;\n  admin_key._5_2_ = 0x5949;\n  admin_key[7] = 0x5f;\n  admin_key._8_7_ = 0x544552434553;\n  admin_hash = hash(admin_key);\n  admin_key._0_4_ = 0x45504f4e;\n  admin_key[4] = 0;\n  while( true ) {\n    menu();\n    iVar1 = __isoc99_scanf(&DAT_00102075,&local_14);\n    if (iVar1 != 1) break;\n    switch(local_14) {\n    case 1:\n      alloc_note();\n      break;\n    case 2:\n      free_note();\n      break;\n    case 3:\n      edit_note();\n      break;\n    case 4:\n      read_note();\n      break;\n    case 5:\n      check_admin();\n    }\n  }\n  if (local_10 != *(long *)(in_FS_OFFSET + 0x28)) {\n                    /* WARNING: Subroutine does not return */\n    __stack_chk_fail();\n  }\n  return 0;\n}\n\n\n/* ===== Function: _fini @ 0010186c ===== */\n\nvoid _fini(void)\n\n{\n  return;\n}\n\n\n/* ===== Function: getenv @ 00105000 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nchar * getenv(char *__name)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* getenv@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: free @ 00105008 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid free(void *__ptr)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* free@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: __libc_start_main @ 00105010 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid __libc_start_main(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* __libc_start_main@GLIBC_2.34 */\n  halt_baddata();\n}\n\n\n/* ===== Function: _ITM_deregisterTMCloneTable @ 00105018 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid _ITM_deregisterTMCloneTable(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n  halt_baddata();\n}\n\n\n/* ===== Function: puts @ 00105020 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint puts(char *__s)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* puts@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: write @ 00105028 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nssize_t write(int __fd,void *__buf,size_t __n)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* write@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: strlen @ 00105030 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nsize_t strlen(char *__s)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* strlen@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: __stack_chk_fail @ 00105038 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid __stack_chk_fail(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* __stack_chk_fail@GLIBC_2.4 */\n  halt_baddata();\n}\n\n\n/* ===== Function: printf @ 00105040 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint printf(char *__format,...)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* printf@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: read @ 00105048 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nssize_t read(int __fd,void *__buf,size_t __nbytes)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* read@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: getchar @ 00105050 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint getchar(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* getchar@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: __gmon_start__ @ 00105058 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid __gmon_start__(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n  halt_baddata();\n}\n\n\n/* ===== Function: malloc @ 00105060 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid * malloc(size_t __size)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* malloc@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: setvbuf @ 00105068 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nint setvbuf(FILE *__stream,char *__buf,int __modes,size_t __n)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* setvbuf@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: __isoc99_scanf @ 00105070 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid __isoc99_scanf(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* __isoc99_scanf@GLIBC_2.7 */\n  halt_baddata();\n}\n\n\n/* ===== Function: exit @ 00105078 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid exit(int __status)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* exit@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n\n/* ===== Function: _ITM_registerTMCloneTable @ 00105080 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid _ITM_registerTMCloneTable(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n  halt_baddata();\n}\n\n\n/* ===== Function: __cxa_finalize @ 00105088 ===== */\n\n/* WARNING: Control flow encountered bad instruction data */\n\nvoid __cxa_finalize(void)\n\n{\n                    /* WARNING: Bad instruction - Truncating control flow here */\n                    /* __cxa_finalize@GLIBC_2.2.5 */\n  halt_baddata();\n}\n\n",
+      "stderr": "openjdk version \"21.0.8\" 2025-07-15\nOpenJDK Runtime Environment (build 21.0.8+9-Debian-1)\nOpenJDK 64-Bit Server VM (build 21.0.8+9-Debian-1, mixed mode)\n",
+      "truncated": false,
+      "data": null
+    },
+    {
+      "name": "exploit_chain_generation",
+      "ok": true,
+      "status": "OK",
+      "note": "generated 1 exploitation chain(s)",
+      "ts": "2026-01-11T21:03:16",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "total_chains": 1,
+        "chains": [
+          {
+            "chain_id": 0,
+            "name": "No obvious exploitation chain",
+            "steps": [
+              "Manual analysis required"
+            ],
+            "primitives_needed": [],
+            "success_probability": "unknown",
+            "prerequisites": [],
+            "notes": [
+              "Vulnerabilities unclear from static analysis",
+              "Try dynamic analysis with fuzzing"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "per_function_analysis",
+      "ok": true,
+      "status": "OK",
+      "note": "analyzed 31 functions",
+      "ts": "2026-01-11T21:03:16",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "functions": [
+          {
+            "name": "_init",
+            "address": "0000000000001000",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "getenv@plt-0x10",
+            "address": "0000000000001020",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "getenv@plt",
+            "address": "0000000000001030",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "free@plt",
+            "address": "0000000000001040",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "puts@plt",
+            "address": "0000000000001050",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Prints output"
+            ]
+          },
+          {
+            "name": "write@plt",
+            "address": "0000000000001060",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Prints output"
+            ]
+          },
+          {
+            "name": "strlen@plt",
+            "address": "0000000000001070",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "__stack_chk_fail@plt",
+            "address": "0000000000001080",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "printf@plt",
+            "address": "0000000000001090",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Prints output"
+            ]
+          },
+          {
+            "name": "read@plt",
+            "address": "00000000000010a0",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Reads data",
+              "⚠️ Reads but NEVER prints"
+            ]
+          },
+          {
+            "name": "getchar@plt",
+            "address": "00000000000010b0",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "malloc@plt",
+            "address": "00000000000010c0",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "setvbuf@plt",
+            "address": "00000000000010d0",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "__isoc99_scanf@plt",
+            "address": "00000000000010e0",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "exit@plt",
+            "address": "00000000000010f0",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "__cxa_finalize@plt",
+            "address": "0000000000001100",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "_start",
+            "address": "0000000000001110",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "deregister_tm_clones",
+            "address": "0000000000001140",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "register_tm_clones",
+            "address": "0000000000001170",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "__do_global_dtors_aux",
+            "address": "00000000000011b0",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "frame_dummy",
+            "address": "00000000000011f0",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "init",
+            "address": "00000000000011f9",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "hash",
+            "address": "0000000000001281",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          },
+          {
+            "name": "menu",
+            "address": "000000000000131b",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Prints output"
+            ]
+          },
+          {
+            "name": "alloc_note",
+            "address": "00000000000013b7",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Reads data",
+              "Prints output"
+            ]
+          },
+          {
+            "name": "free_note",
+            "address": "00000000000014c7",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Prints output"
+            ]
+          },
+          {
+            "name": "edit_note",
+            "address": "000000000000155a",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Reads data",
+              "Prints output"
+            ]
+          },
+          {
+            "name": "read_note",
+            "address": "0000000000001610",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Reads data",
+              "Prints output"
+            ]
+          },
+          {
+            "name": "check_admin",
+            "address": "00000000000016bc",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Prints output"
+            ]
+          },
+          {
+            "name": "main",
+            "address": "0000000000001750",
+            "has_canary": true,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": [
+              "Reads data",
+              "⚠️ Reads but NEVER prints"
+            ]
+          },
+          {
+            "name": "_fini",
+            "address": "000000000000186c",
+            "has_canary": false,
+            "buffer_info": null,
+            "calls_dangerous": [],
+            "interesting_patterns": []
+          }
+        ],
+        "summary": {
+          "total_functions": 31,
+          "canary_bypassed": [
+            "_init",
+            "getenv@plt-0x10",
+            "getenv@plt",
+            "free@plt",
+            "puts@plt",
+            "write@plt",
+            "strlen@plt",
+            "printf@plt",
+            "read@plt",
+            "getchar@plt",
+            "malloc@plt",
+            "setvbuf@plt",
+            "__isoc99_scanf@plt",
+            "exit@plt",
+            "__cxa_finalize@plt",
+            "_start",
+            "deregister_tm_clones",
+            "register_tm_clones",
+            "__do_global_dtors_aux",
+            "frame_dummy",
+            "_fini"
+          ],
+          "interesting_functions": [
+            {
+              "name": "puts@plt",
+              "reasons": [
+                "Prints output"
+              ]
+            },
+            {
+              "name": "write@plt",
+              "reasons": [
+                "Prints output"
+              ]
+            },
+            {
+              "name": "printf@plt",
+              "reasons": [
+                "Prints output"
+              ]
+            },
+            {
+              "name": "read@plt",
+              "reasons": [
+                "Reads data",
+                "⚠️ Reads but NEVER prints"
+              ]
+            },
+            {
+              "name": "menu",
+              "reasons": [
+                "Prints output"
+              ]
+            },
+            {
+              "name": "alloc_note",
+              "reasons": [
+                "Reads data",
+                "Prints output"
+              ]
+            },
+            {
+              "name": "free_note",
+              "reasons": [
+                "Prints output"
+              ]
+            },
+            {
+              "name": "edit_note",
+              "reasons": [
+                "Reads data",
+                "Prints output"
+              ]
+            },
+            {
+              "name": "read_note",
+              "reasons": [
+                "Reads data",
+                "Prints output"
+              ]
+            },
+            {
+              "name": "check_admin",
+              "reasons": [
+                "Prints output"
+              ]
+            },
+            {
+              "name": "main",
+              "reasons": [
+                "Reads data",
+                "⚠️ Reads but NEVER prints"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "uninit_var_detection",
+      "ok": true,
+      "status": "OK",
+      "note": "detection complete",
+      "ts": "2026-01-11T21:03:16",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "found_patterns": [],
+        "vulnerable_functions": [],
+        "source_analysis": {
+          "findings": []
+        },
+        "binary_analysis": {
+          "potentially_vulnerable": [
+            "check_admin",
+            "read_note",
+            "menu",
+            "edit_note",
+            "free_note",
+            "alloc_note"
+          ]
+        }
+      }
+    },
+    {
+      "name": "function_chain_analysis",
+      "ok": true,
+      "status": "OK",
+      "note": "found 0 chains",
+      "ts": "2026-01-11T21:03:16",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "interesting_chains": [],
+        "exploitation_paths": []
+      }
+    },
+    {
+      "name": "quick_win_detection",
+      "ok": true,
+      "status": "OK",
+      "note": "found 0 quick wins",
+      "ts": "2026-01-11T21:03:16",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": {
+        "quick_wins": []
+      }
+    },
+    {
+      "name": "generate_debug_commands",
+      "ok": true,
+      "status": "OK",
+      "note": "created DEBUG_COMMANDS.sh",
+      "ts": "2026-01-11T21:03:16",
+      "cmd": null,
+      "rc": null,
+      "timed_out": null,
+      "duration_sec": null,
+      "stdout": null,
+      "stderr": null,
+      "truncated": null,
+      "data": null
+    }
+  ],
+  "ai_summary": {
+    "total_vulnerabilities": 3,
+    "critical_high_vulns": 2,
+    "exploit_chains_available": 1,
+    "recommended_chain": "No obvious exploitation chain",
+    "key_hints": [
+      "Source downloaded: bad_mood",
+      "NX enabled (likely needs ROP/ret2libc).",
+      "PIE enabled (needs leak for code base).",
+      "Heap: use_after_free - Binary uses malloc/free - check for UAF via dynamic analysis",
+      "Format string functions detected: printf, plt.printf, got.printf",
+      "Found 4 one_gadget(s) in libc - check constraints!",
+      "Ghidra pseudo-C embedded in JSON (step ghidra_decompile.stdout).",
+      "Functions without canary: _init, getenv@plt-0x10, getenv@plt, free@plt, puts@plt"
+    ],
+    "next_steps": [
+      "1. Calculate format string offset",
+      "2. Leak libc addresses to bypass ASLR"
+    ]
+  }
+}

