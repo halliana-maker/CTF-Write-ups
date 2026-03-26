@@ -1,7 +1,8 @@
-# Write-up: 私칸字本当上手 (Misc) - PolyU CTF 2026
+# 私칸字本当上手 (Misc) - PolyU CTF 2026 Write-up
 
 ## 1. TL;DR
-This challenge is a beautiful multi-layered puzzle revolving around text encodings, historical Japanese writing, and hardware keyboard layouts. The solution requires three main steps:
+This challenge blends text encoding, ancient Japanese, and keyboard layouts into one complex puzzle. The solution requires three main steps:
+
 1. **Mojibake Reversal:** Encode the ciphertext in Korean `CP949` and decode it as Chinese `GBK` to reveal Japanese Man'yōgana.
 2. **Man'yōgana to Hiragana:** Translate the ancient Man'yōgana characters into modern Japanese Hiragana.
 3. **JIS Keyboard Decryption:** Map the resulting Hiragana characters to their corresponding English/Numeric keys on a standard Japanese JIS hardware keyboard layout to recover the flag.
@@ -79,7 +80,7 @@ Assembling the pieces, we get our final flag.
 
 ## Solve Script (Python)
 
-Here is the clean, automated script used to fully decrypt the flag:
+Here is the python script used to decrypt the flag:
 
 ```python
 def solve_poly_ctf():
