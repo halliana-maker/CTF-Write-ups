@@ -1,0 +1,17 @@
+services:
+  another_bash_jail_question_mark_app:
+    build:
+      context: ./chall
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    container_name: another_bash_jail_question_mark_app
+    restart: always
+    privileged: true
+    networks:
+      default: null
+      internal: null
+
+networks:
+  default: null
+  internal: null
