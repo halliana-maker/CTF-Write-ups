@@ -168,5 +168,3 @@ kashiCTF{71m3_byp455_w45_fun_19_B6HVLLYY}
 | **Hidden trust boundary** | A page can look like a simple countdown while actually depending on a security-sensitive server-side check |
 | **Header fuzzing** | Nonstandard headers like `X-Time` are worth testing when standard headers fail |
 | **CTFd distractions** | A hint like “ask a robot” may be a red herring if the real flaw is simpler |
-
-If you want, I can also turn this into a more polished blog-post version with a slightly more narrative tone, while keeping the same structure.
