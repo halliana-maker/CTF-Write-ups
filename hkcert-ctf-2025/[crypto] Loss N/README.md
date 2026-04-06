@@ -2,14 +2,14 @@
 
 *   **Event:** HKCERT CTF 2025 (Qualifying Round)
 *   **Category:** Cryptography
-*   **Description:** *Description: 沒有那個n，我照樣可以解出flag。 Even without that n, I can still solve the flag.*
+*   **Description:** *Even without n, I can still solve the flag.*
 
 ## TL;DR
-We are given the RSA decryption exponent $d$, encryption exponent $e$, and ciphertext $c$, but the modulus $N$ is missing.
-1.  Exploit the RSA definition $e \cdot d = k \cdot \phi(N) + 1$ to brute-force the integer $k$ (where $1 \le k \le e$).
-2.  Recover candidates for Euler's totient $\phi(N)$.
-3.  Use the code's specific prime generation logic ($q = \text{next\_prime}(p)$) to deduce that $p \approx \sqrt{\phi(N)}$.
-4.  Find $p$ by checking primes near $\sqrt{\phi(N)}$, reconstruct $N$, and decrypt the flag.
+We are given the RSA decryption exponent d, encryption exponent e, and ciphertext c, but the modulus N is missing.
+1.  Exploit the RSA definition `e * d = k * phi(N) + 1` to brute-force the integer `k` (where `1 <= k <= e`).
+2.  Recover candidates for Euler's totient `phi(N)`.
+3.  Use the code's specific prime generation logic (`q = next_prime(p)`) to deduce that `p ~ sqrt(phi(N))`.
+4.  Find `p` by checking primes near `sqrt(phi(N))`, reconstruct `N`, and decrypt the flag.
 
 ---
 
@@ -26,45 +26,63 @@ d = inverse(e, (p-1) * (q-1))
 ```
 
 **Key Observations:**
-1.  **Missing Modulus:** We have $c, d, e$, but **no $N$**. Standard RSA tools (`rsactftool`) require $N$ or $p, q$.
-2.  **Close Primes:** The code generates a 512-bit prime $p$, and immediately sets $q$ as the **next prime** after $p$. This means $p$ and $q$ are extremely close to each other ($|p - q|$ is very small).
-3.  **Known $d$:** The private exponent is leaked.
+1.  **Missing Modulus:** We have `c, d, e`, but **no `N`**. Standard RSA tools (`rsactftool`) require `N` or `p, q`.
+2.  **Close Primes:** The code generates a 512-bit prime `p`, and immediately sets `q` as the **next prime** after `p`. This means `p` and `q` are extremely close to each other (`|p - q|` is very small).
+3.  **Known `d`:** The private exponent is leaked.
 
 ---
 
 ## The Math (Step-by-Step)
 
-### Step 1: Recovering $\phi(N)$
-The fundamental definition of the RSA private key $d$ is the modular multiplicative inverse of $e$ modulo $\phi(N)$.
-$$e \cdot d \equiv 1 \pmod{\phi(N)}$$
-This can be rewritten as an equality over integers:
-$$e \cdot d - 1 = k \cdot \phi(N)$$
-Where $k$ is some integer.
+### Step 1: Recovering phi(N)
+The RSA relation is:
 
-Since $d < \phi(N)$ (by definition of modular inverse) and $e \cdot d \approx k \cdot \phi(N)$, we can estimate the size of $k$:
-$$k = \frac{e \cdot d - 1}{\phi(N)} < e$$
-Since $e = 65537$, the value of $k$ is relatively small ($1 \le k \le 65537$). We can easily **brute-force $k$**.
+```text
+e * d ≡ 1 (mod phi(N))
+```
 
-For every guess of $k$, we compute a candidate $\phi(N)$:
-$$\phi_{cand} = \frac{e \cdot d - 1}{k}$$
+So over integers:
+
+```text
+e * d - 1 = k * phi(N)
+```
+
+Where `k` is an integer.
+
+Since `d < phi(N)` (by definition of modular inverse) and `e * d ~ k * phi(N)`, we estimate:
+
+```text
+k = (e * d - 1) / phi(N) < e
+```
+
+Since `e = 65537`, `k` is relatively small (`1 <= k <= 65537`). We can brute-force `k`.
+
+For every guess of `k`, we compute a candidate `phi(N)`:
+`phi_cand = (e * d - 1) / k`
 (We only keep candidates where the division is exact).
 
-### Step 2: Recovering $p$ and $q$ from $\phi(N)$
-We know that:
-$$\phi(N) = (p-1)(q-1) = pq - p - q + 1$$
-Usually, factoring $\phi(N)$ is hard. However, the challenge constrains $q$ to be the `next_prime(p)`.
-This implies $p \approx q$.
-Therefore:
-$$\phi(N) \approx p \cdot p \approx p^2$$
-$$p \approx \sqrt{\phi(N)}$$
+### Step 2: Recovering p and q from phi(N)
+We know:
 
-We can calculate the integer square root of our candidate $\phi(N)$. The real prime $p$ will be very close to this value.
+```text
+phi(N) = (p - 1)(q - 1) = pq - p - q + 1
+```
+Usually, factoring `phi(N)` is hard. However, the challenge constrains `q` to be `next_prime(p)`.
+This implies `p ~ q`.
+Therefore:
+
+```text
+phi(N) ~ p * p ~ p^2
+p ~ sqrt(phi(N))
+```
+
+We can calculate the integer square root of our candidate `phi(N)`. The real prime `p` will be very close to this value.
 
 ### Step 3: Verification
-For each candidate $p$ (found near $\sqrt{\phi_{cand}}$):
-1.  Generate $q' = \text{next\_prime}(p)$.
-2.  Check if $(p-1)(q'-1)$ equals our derived $\phi_{cand}$.
-3.  If it matches, we have found the correct primes. We can now compute $N = p \cdot q'$ and decrypt $c$.
+For each candidate `p` (found near `sqrt(phi_cand)`):
+1.  Generate `q' = next_prime(p)`.
+2.  Check if `(p - 1)(q' - 1)` equals our derived `phi_cand`.
+3.  If it matches, we have found the correct primes. We can now compute `N = p * q'` and decrypt `c`.
 
 ---
 

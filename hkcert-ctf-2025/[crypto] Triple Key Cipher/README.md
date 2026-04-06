@@ -94,7 +94,7 @@ Rearranging: $M \cdot K2 - 256 \cdot q - C \approx 0$.
 We build a matrix of dimension $(16 + N + 1)$, where $N$ is the number of constraints (bytes of ciphertext).
 *   **Rows 0..15**: Identity matrix for $K2$ (since we want to find $K2$).
 *   **Rows 16..(16+N)**: The coefficients of $M$, scaled by a large weight $W$. Also include the modulus $256 \times W$.
-*   **Last Row**: The target vector $-Target \times W$. We set the target to the center of the possible range: $(C \& 0xF0) + 7$.
+*   **Last Row**: The target vector `-Target * W`. We set the target to the center of the possible range: `(C & 0xF0) + 7`.
 
 By running LLL (Lenstra-Lenstra-Lovász) reduction, we find a basis where the vectors are as short as possible. The shortest vector will correspond to the solution where the "error" (difference between our guess and the ciphertext) is minimal—i.e., the correct $K2$.
 
