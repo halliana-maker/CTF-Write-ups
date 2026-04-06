@@ -35,7 +35,10 @@ def trace(query_A, secret_key, primes, p, skip_index=-1):
     return trace
 ```
 If we look at this algebraically, the `trace` function evaluates a polynomial $P(x)$ at $x = A$:
-$$P(A) = \sum_{i \neq \text{poisoned\_index}}^{73} sk_i \cdot A^i \pmod p$$
+$$
+P(A) = \sum_{\substack{0 \le i \le 73 \\ i \ne j}} sk_i A^i \bmod p
+$$
+where $j$ is the poisoned index.
 
 **The Flaw:** 
 We can query this polynomial for any $A$. The coefficients of this polynomial *are* the secret key elements $sk_i$. The degree of the polynomial is bounded by the number of primes (74 primes $\implies$ max degree 73). A polynomial of degree $N-1$ can be perfectly reconstructed using exactly $N$ points. Since the server allows 200 queries, we have more than enough attempts to grab 74 points and use **Lagrange Interpolation** over $GF(p)$ to recover the coefficients!
@@ -73,8 +76,8 @@ Here is the exact step-by-step strategy used in the exploit script:
 2.  **Lagrange Interpolation:** Use SageMath's `PolynomialRing(GF(p), 'x').lagrange_polynomial()` to reconstruct $P(x)$ using our 74 coordinate pairs.
 3.  **Recover Partial Key:** Extract the polynomial coefficients. Because CSIDH keys use small signed integers ($\pm$), map any large coefficient $c > p/2$ back to negative via $c - p$.
 4.  **Find the Missing Element:** 
-    *   $\text{Partial Sum} = \sum |sk_{\text{partial}}|$
-    *   $\text{Missing Magnitude} = \text{ops\_count} - \text{Partial Sum}$
+    *   $S_{\mathrm{partial}} = \sum |sk_{\mathrm{partial}}|$
+    *   $m_{\mathrm{missing}} = \mathrm{opsCount} - S_{\mathrm{partial}}$
 5.  **Brute Force:** We know the magnitude, but we don't know *where* it goes (which index was skipped) or its sign (positive or negative). We simply loop through all indices where our interpolated coefficient was `0`, inject $\pm \text{Missing Magnitude}$, and try to decrypt the AES-GCM flag.
 
 **Execution Result:**

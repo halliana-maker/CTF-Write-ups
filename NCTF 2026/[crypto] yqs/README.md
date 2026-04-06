@@ -37,8 +37,20 @@ During a round, we are allowed up to 100 queries. We can choose between two orac
 **Choice `m` (Message / LWE Oracle):**
 When we send `m` and an integer (e.g., `111`), the server hashes our integer and encrypts it using the current round's LWE key. 
 It returns **`Resonance echoes: (A, b)`**:
-*   **`A`**: A single massive integer. In the background, this is an array of $77$ random coefficients $(a_0, a_1, \dots, a_{76})$ modulo $q$. The server compresses this array into one integer by evaluating it as a base-$q$ polynomial: $A_{int} = \sum_{i=0}^{76} a_i \cdot q^i$.
-*   **`b`**: A scalar integer modulo $q$. It is calculated as $b = (\vec{a} \cdot \vec{s} + \text{msg\_encoded} + e) \pmod q$, where $e$ is a tiny random error in the range $[0, 3]$.
+*   **`A`**: A single massive integer. In the background, this is an array of $77$ random coefficients $(a_0, a_1, \dots, a_{76})$ modulo $q$. The server compresses this array into one integer by evaluating it as a base-$q$ polynomial:
+
+$$
+A_{\mathrm{int}} = \sum_{i=0}^{76} a_i q^i
+$$
+
+*   **`b`**: A scalar integer modulo $q$. It is calculated as:
+
+$$
+b = (\vec{a} \cdot \vec{s} + m_{\mathrm{enc}} + e) \bmod q,
+\quad e \in [0, 3]
+$$
+
+where $m_{\mathrm{enc}}$ is the encoded message term.
 
 **Choice `e` (Exchange / ECC Oracle):**
 When we send `e`, we are attempting to interact with the Elliptic Curve. We send a packed point integer.
