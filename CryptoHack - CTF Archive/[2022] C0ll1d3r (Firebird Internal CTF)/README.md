@@ -8,8 +8,8 @@ Connect at archive.cryptohack.org 9391"
 
 ## 2. What data/file we have and what is special
 We are provided with `chall.py`. Here are the core mechanics and constraints:
-* **Hidden Parameters:** A random 256-bit prime $p$ and a generator $g$ are created on connection. We don't know them.
-* **The Hash Function:** $H(m) = g^{\text{int}(b'\text{SECUREHASH\_}' + m)} \pmod p$
+* **Hidden Parameters:** A random 256-bit prime $p$ and a generator $g$ are created on connection; both are unknown to us.
+* **The Hash Function:** $H(m) = g^{\operatorname{int}(b'\texttt{SECUREHASH\_}' + m)} \pmod p$
 * **Constraints:** 
   * We are allowed exactly **5 queries** per session.
   * Inputs must strictly match the regex `^[a-z]+$` (only lowercase letters).

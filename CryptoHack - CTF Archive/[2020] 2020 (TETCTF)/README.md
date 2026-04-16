@@ -75,8 +75,8 @@ Our attack plan:
 1. Connect to the server and request indices `1396` and `1792`.
 2. Parse the output to grab the values of $R_{1396}$ and $R_{1792}$.
 3. **Untemper** these values to reveal the internal states $S_{1396}$ and $S_{1792}$.
-4. **Guess** the MSB of $S_{1395}$ (we'll just assume it's `0`).
-5. Calculate $S_{2019} = S_{1792} \oplus \text{Twist}(\text{guessed\_MSB}, S_{1396})$.
+4. **Guess** the MSB of $S_{1395}$ (we'll just assume it is $0$).
+5. Calculate $S_{2019} = S_{1792} \oplus \text{Twist}(b_{1395}, S_{1396})$, where $b_{1395} \in \{0,1\}$ is the guessed MSB bit.
 6. **Temper** $S_{2019}$ to get the final output $R_{2019}$.
 7. Submit it. If we get "TetCTF{...}", we win. If not, rerun the script until our 50% guess is right.
 
