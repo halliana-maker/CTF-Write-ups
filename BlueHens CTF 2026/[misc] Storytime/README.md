@@ -71,7 +71,7 @@ graph TD
     E -->|Step 5: ROT13| F[Valid Hex String]
     F -->|Step 6: Hex Decode| G[ASCII String]
     G -->|Step 7: Atbash| H[Interleaved Flag]
-    H -->|Step 8: 2-Rail Fence| I[Flag: udctf{c1ph3rs_ar3_Fun!}]
+    H -->|Step 8: 2-Rail Fence| I["Flag: udctf{c1ph3rs_ar3_Fun!}"]
     
     style A fill:#2d2d2d,stroke:#fff,stroke-width:2px,color:#fff
     style I fill:#28a745,stroke:#fff,stroke-width:2px,color:#fff
