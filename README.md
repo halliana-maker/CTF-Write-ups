@@ -8,9 +8,9 @@ Each directory represents a specific competition and contains my approach to sol
 
 ```
 └── CTF Events
-    └── challenge name          //[Categories]challenge_name
-        └── challenge file      //py/zip/txt, etc
-        └── README.md           //writeup
-        └── img/                //Screenshot
-        └── solve.py            //solve program (sometimes include in README.md)
+    └── challenge name          // [Categories]challenge_name
+        └── challenge file      // py/zip/txt, etc
+        └── README.md           // writeup
+        └── img/                // Screenshot
+        └── solve.py            // solve program (sometimes include in README.md)
 ```
