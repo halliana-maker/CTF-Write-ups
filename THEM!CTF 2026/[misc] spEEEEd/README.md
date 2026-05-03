@@ -76,7 +76,7 @@ flowchart TD
     L --> M[Try byte alignment]
     M --> N[Skip 2 bits]
     N --> O[Repack bits into bytes]
-    O --> P[Recover THEM?!CTF{DCBDCBACBAG#BAECAFEDCBAG#BA}]
+    O --> P["Recover THEM?!CTF{DCBDCBACBAG#BAECAFEDCBAG#BA}"]
 ```
 
 ---
