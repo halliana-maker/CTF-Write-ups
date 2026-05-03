@@ -214,7 +214,7 @@ flowchart TD
     O --> P[Reuse PCAP salt]
     P --> Q[Encrypt command: cat flag.txt]
     Q --> R[Decrypt response]
-    R --> S[Final flag: KubSTU{d0r4_dur4_sug4r_ch0c0l4t3_v1b3z}]
+    R --> S[Final flag: KubSTU d0r4_dur4_sug4r_ch0c0l4t3_v1b3z]
 ```
 
 ---
