@@ -2,23 +2,13 @@
 
 ## Challenge Description
 
-> **Cipher "Сахар"**  
->  
 > Sugar Capybara Talks — a group of capybaras from a secret unit encrypts their communications with a proprietary protocol.  
 > The PCAP contains their intercepted session. They are communicating with some kind of command server.  
 >  
 > Server:
 >
-> ```text
-> nc 217.26.29.80 31337
-> nc 62.113.108.12 31337
-> ```
->
-> Flag format:
->
-> ```text
-> KubSTU{...}
-> ```
+> `nc 217.26.29.80 31337
+> nc 62.113.108.12 31337`
 
 ---
 
@@ -359,7 +349,7 @@ The decrypted documents included many fake analysis blocks. For example, some fi
 The final solver was executed with the known passphrase:
 
 ```bash
-python3 solve_sugar_v4.py 'sugar_traffic.pcap' -p chocolate --live
+python3 solve.py 'sugar_traffic.pcap' -p chocolate --live
 ```
 
 The script verified the crypto parameters:
@@ -509,7 +499,7 @@ def send_frame(sock, key, plaintext):
 The full working solve command was:
 
 ```bash
-python3 solve_sugar_v4.py 'sugar_traffic.pcap' -p chocolate --live
+python3 solve.py 'sugar_traffic.pcap' -p chocolate --live
 ```
 
 ---
