@@ -188,7 +188,7 @@ flowchart TD
 
     D --> D1[SALT = a3f7c9b1e2d45608]
     D --> D2[CIPHER = AES-256-CBC]
-    D --> D3[KDF = SHA256(PASSPHRASE || SALT)]
+    D --> D3["KDF = SHA256(PASSPHRASE || SALT)"]
 
     C --> E[Reassemble real TCP stream]
     E --> F[Parse encrypted frames]

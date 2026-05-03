@@ -142,7 +142,7 @@ flowchart TD
 
     C4 --> G[Reject false end-state]
     E4 --> G
-    F --> H[Submit KubSTU(Mellin_The_Hunter)]
+    F --> H["Submit KubSTU(Mellin_The_Hunter)"]
 ```
 
 ---
