@@ -115,7 +115,7 @@ flowchart TD
 
     B --> F[Find output-printing bug]
     F --> F1[buf is int32]
-    F --> F2[bytes(buf).hex() prints raw int32 bytes]
+    F --> F2["bytes(buf).hex() prints raw int32 bytes"]
     F --> F3[Need token-to-byte decoding]
 
     D --> G[Probe prompts]
