@@ -90,7 +90,7 @@ That means every leaf needed to sign the target message was already leaked by th
 
 ```mermaid
 flowchart TD
-    A[Target message: gimme flag pls\|6892940] --> B[Compute deterministic vi indexes]
+    A["Target message: gimme flag pls|6892940"] --> B[Compute deterministic vi indexes]
     B --> C[Target needs 12 leaf indexes]
 
     D[Ask server to sign harmless messages] --> E[Signature leaks secret leaves]
