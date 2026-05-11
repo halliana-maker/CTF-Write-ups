@@ -12,14 +12,14 @@ What it does:
 
 Usage:
   pip install pycryptodome
-  python3 solve_sugar.py 'sugar_traffic(1).pcap'
+  python3 solve_sugar.py 'sugar_traffic.pcap'
 
 With rockyou:
   sudo gzip -dk /usr/share/wordlists/rockyou.txt.gz
-  python3 solve_sugar.py 'sugar_traffic(1).pcap' -w /usr/share/wordlists/rockyou.txt --live
+  python3 solve_sugar.py 'sugar_traffic.pcap' -w /usr/share/wordlists/rockyou.txt --live
 
 If you already know the passphrase:
-  python3 solve_sugar.py 'sugar_traffic(1).pcap' -p 'PASSPHRASE' --live
+  python3 solve_sugar.py 'sugar_traffic.pcap' -p 'PASSPHRASE' --live
 """
 
 import argparse
