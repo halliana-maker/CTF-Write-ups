@@ -157,7 +157,7 @@ flowchart TD
     L --> M
 
     M --> N[I_HAVE_NO_AAAS_BUT_I_MUST_SCREEM]
-    N --> O[tjctf{I_HAVE_NO_AAAS_BUT_I_MUST_SCREEM}]
+    N --> O["tjctf{I_HAVE_NO_AAAS_BUT_I_MUST_SCREEM}"]
 ```
 
 ---
