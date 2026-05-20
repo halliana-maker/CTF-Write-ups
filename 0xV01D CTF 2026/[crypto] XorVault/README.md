@@ -19,7 +19,7 @@ flowchart TD
     D --> F["Per-byte XOR with index via d[i] ^= i"]
     D --> G["Another byte transform in between"]
 
-    E --> H[Assume flag prefix: 0xV01D{]
+    E --> H["Assume flag prefix: 0xV01D\{"]
     F --> H
     G --> H
 
@@ -272,33 +272,3 @@ print(plain.decode())
 ```text
 0xV01D{X0R_V4ULT_0P3N3D}
 ```
-
----
-
-## 5. What We Learned
-
-This challenge is a good example of why small reversing hints matter.
-
-### Key takeaways
-
-- A known flag format can drastically reduce the search space.
-- `i % 8` is a strong indicator of a repeating 8-byte structure.
-- `d[i] ^= i` is simple obfuscation, but it becomes stronger when combined with another transform.
-- The **order of operations** matters as much as the operations themselves.
-- Bit rotation is a common reversible layer in CTF encryption tasks.
-- Verifying by re-encryption is the cleanest way to confirm the recovered logic.
-
-### Practical lesson
-
-When a challenge hints at per-byte transforms, do not just ask:
-
-- "What operations were used?"
-
-Also ask:
-
-- "In what exact order were they applied?"
-- "Which parts depend on index?"
-- "Can I exploit known plaintext like the flag prefix?"
-
-That mindset turns a messy brute-force problem into a structured reverse-engineering task.
-
