@@ -230,14 +230,3 @@ Decrypt inline ciphertext into PNG
 ↓
 Open image and read flag
 ```
-
----
-
-## Optional Notes
-
-If you want to reproduce this locally in a tooling-oriented way, the practical routes are usually:
-
-- `bkcrack` with a reconstructed encrypted member and known plaintext bytes
-- a custom ZipCrypto state-recovery script
-
-The key insight is the same in both cases: **recover the encryption state from known plaintext, not the password from brute force**.
