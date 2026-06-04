@@ -5,17 +5,7 @@
 
 > This challenge will take a long time, so I suggest you try another challenge :)
 
-We are given a single packet capture:
-
-```text
-output.pcapng
-```
-
-Final flag:
-
-```text
-THEM?!CTF{SH3_IS_S0_PERF3FCT_BL4H_BLAH_BL4H}
-```
+We are given a single packet capture: `output.pcapng`
 
 ---
 
@@ -220,7 +210,8 @@ The corrected render is vertically flipped. Reading the final image gives:
 THEM?!CTF{SH3_IS_S0_PERF3FCT_BL4H_BLAH_BL4H}
 ```
 
-### Full solver
+<details>
+<summary>Full solver (solve.py)</summary>
 
 ```python
 #!/usr/bin/env python3
@@ -382,7 +373,7 @@ def main():
         f.write('\n'.join(lines) + '\n')
     print(f'[+] wrote {OUT_TXT}')
 
-    save_png(pixels, width, height, OUT_PNG)
+    save_png(pixels, width, height, OUT_PNG)    #just show u the flag that u will get OvO
     print('[+] flag: THEM?!CTF{SH3_IS_S0_PERF3FCT_BL4H_BLAH_BL4H}')
 
 
@@ -390,11 +381,6 @@ if __name__ == '__main__':
     main()
 ```
 
-Run it with:
-
-```bash
-python3 solve.py output.pcapng
-```
 
 Optional dependency for PNG output:
 
@@ -402,9 +388,28 @@ Optional dependency for PNG output:
 python3 -m pip install pillow
 ```
 
+Outputs:
+
+| File | Purpose |
+|---|---|
+| `pixel_flag_render.txt` | ASCII/text render of the recovered bitmap |
+| `pixel_flag_vertical_flip.png` | Final vertically flipped image containing the readable flag |
+
+</details>
+
+Run:
+```bash
+python3 solve.py output.pcapng
+```
+
 After you run the program, you should get this image :
 ![Pixel Flag](pixel_flag_vertical_flip.png)
-It is easy to read lol
+It is easy to read lol, the final recovered flag is:
+
+```text
+THEM?!CTF{SH3_IS_S0_PERF3FCT_BL4H_BLAH_BL4H}
+```
+
 
 ---
 
@@ -421,9 +426,3 @@ Key takeaways:
 | Bit alignment matters | The useful payload data only becomes structured after a 3-bit left shift. |
 | Geometry can encode text | Two 3D coordinate triples per record define a tiny segment; its midpoint is one pixel of the final message. |
 | Coordinate systems can invert images | The first bitmap render needs a vertical flip before the flag is readable. |
-
-The final recovered flag is:
-
-```text
-THEM?!CTF{SH3_IS_S0_PERF3FCT_BL4H_BLAH_BL4H}
-```
