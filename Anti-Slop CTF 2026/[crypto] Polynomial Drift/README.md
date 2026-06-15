@@ -2,7 +2,7 @@
 
 ## Challenge Description
 
-> A quiet channel, a sealed message, and just enough structure to make a mistake expensive.
+> A quiet channel, a sealed message, and just enough structure to make a mistake expensive.     
 > http://178.105.199.41:20013/
 
 ---
