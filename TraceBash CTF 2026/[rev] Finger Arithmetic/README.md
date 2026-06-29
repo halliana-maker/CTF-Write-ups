@@ -1,9 +1,4 @@
-# Finger Arithmetic — TraceBash CTF Write-up
-
-> **Category:** Reverse Engineering  
-> **Points:** 499  
-> **Author:** S31ZUR3  
-> **Flag:** `TBCTF{ju75u5_n_d34d_3nd5_4w417!}`
+# Finger Arithmetic — TraceBash CTF 2026 Write-up
 
 ## Challenge Description
 
@@ -484,11 +479,3 @@ When a custom visual encoding is difficult to decode perfectly, the original com
 ### Input functions can interfere with binary testing
 
 `fgets()` treats `0x0a` as a line terminator. Raw-byte testing must account for delimiter bytes, null bytes, signed-byte conversions, and other input-path behaviour.
-
----
-
-## Final Flag
-
-```text
-TBCTF{ju75u5_n_d34d_3nd5_4w417!}
-```
