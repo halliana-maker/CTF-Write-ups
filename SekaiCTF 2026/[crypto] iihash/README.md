@@ -340,7 +340,7 @@ The included `--self-test` runs the complete cryptanalytic pipeline offline with
 
 ## 8. Meaningful Failed Attempts and Debugging
 
-I did not preserve a genuine failed cryptanalytic branch from this solve, so I do not invent one. The meaningful debugging came from protecting the attack against several easy-to-miss model and deployment errors.
+The meaningful debugging came from protecting the attack against several easy-to-miss model and deployment errors.
 
 ### Remote throughput, not local arithmetic, controlled feasibility
 
